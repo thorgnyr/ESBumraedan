@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="is">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ESB-þermómetrinn · Íslenski skoðunarþermómetrinn</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,400&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg:        #f5f0e8;
+      --surface:   #faf7f2;
+      --ink:       #1a1610;
+      --ink2:      #4a4438;
+      --ink3:      #8c8070;
+      --rule:      #d8d0c0;
+      --pos:       #1a7a4a;
+      --pos-bg:    #d6f0e2;
+      --neg:       #c02020;
+      --neg-bg:    #fae0e0;
+      --neu:       #5050a0;
+      --neu-bg:    #e4e4f4;
+      --accent:    #c84010;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Instrument Sans', system-ui, sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ── MASTHEAD ── */
+    .masthead {
+      border-bottom: 3px solid var(--ink);
+      padding: 2rem 0 1.25rem;
+      background: var(--bg);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .masthead-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .site-name {
+      font-family: 'Fraunces', Georgia, serif;
+      font-weight: 700;
+      font-size: clamp(1.6rem, 5vw, 2.8rem);
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+    .site-name em {
+      font-style: italic;
+      color: var(--accent);
+    }
+    .masthead-meta {
+      text-align: right;
+    }
+    .masthead-meta .kicker {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ink3);
+      display: block;
+    }
+    #last-updated {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--ink3);
+    }
+
+    /* ── LAYOUT ── */
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 2.5rem 2rem 5rem; }
+
+    /* ── HERO SECTION: TIMELINE ── */
+    .hero {
+      margin-bottom: 2.5rem;
+    }
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--ink3);
+      border-bottom: 1px solid var(--rule);
+      padding-bottom: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 240px;
+      gap: 1.5rem;
+      align-items: start;
+    }
+    @media (max-width: 700px) { .hero-grid { grid-template-columns: 1fr; } }
+
+    .chart-box {
+      background: var(--surface);
+      border: 1px solid var(--rule);
+      border-radius: 2px;
+      padding: 1.5rem 1.5rem 1rem;
+    }
+    .chart-box canvas { display: block; }
+
+    /* ── TODAY PANEL ── */
+    .today-panel {
+      background: var(--ink);
+      color: var(--bg);
+      border-radius: 2px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+    .today-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      opacity: 0.5;
+    }
+    .today-count {
+      font-family: 'Fraunces', serif;
+      font-size: 4.5rem;
+      font-weight: 700;
+      line-height: 1;
+      color: #f5f0e8;
+    }
+    .today-count small {
+      display: block;
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 400;
+      opacity: 0.6;
+      margin-top: 0.25rem;
+    }
+    .today-breakdown {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .today-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.72rem;
+    }
+    .today-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 0.4rem;
+    }
+    .today-dot.pos { background: #3ddd88; }
+    .today-dot.neg { background: #ff6060; }
+    .today-dot.neu { background: #aaaaff; }
+    .today-row .count { opacity: 0.9; font-weight: 500; }
+
+    .total-archive {
+      border-top: 1px solid rgba(255,255,255,0.15);
+      padding-top: 1rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      opacity: 0.55;
+    }
+    .total-archive strong { opacity: 1; font-size: 1.1rem; }
+
+    /* ── TREND BAR ── */
+    .trend-section {
+      margin-bottom: 2.5rem;
+    }
+    .source-bars {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--rule);
+      border: 1px solid var(--rule);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    @media (max-width: 600px) { .source-bars { grid-template-columns: 1fr; } }
+    .source-bar-cell {
+      background: var(--surface);
+      padding: 1rem 1.25rem;
+    }
+    .sb-name {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ink3);
+      margin-bottom: 0.6rem;
+    }
+    .sb-bar {
+      height: 6px;
+      background: var(--rule);
+      border-radius: 3px;
+      overflow: hidden;
+      display: flex;
+      margin-bottom: 0.5rem;
+    }
+    .sb-seg { height: 100%; }
+    .sb-seg.pos { background: var(--pos); }
+    .sb-seg.neg { background: var(--neg); }
+    .sb-seg.neu { background: var(--neu); }
+    .sb-counts {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--ink3);
+      display: flex;
+      gap: 0.75rem;
+    }
+    .sb-counts .p { color: var(--pos); }
+    .sb-counts .n { color: var(--neg); }
+    .sb-counts .u { color: var(--neu); }
+
+    /* ── FILTERS ── */
+    .filters {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.25rem;
+      align-items: center;
+    }
+    .filter-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ink3);
+      margin-right: 0.25rem;
+    }
+    .pill {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 2px;
+      border: 1px solid var(--rule);
+      background: transparent;
+      color: var(--ink2);
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+    .pill:hover { border-color: var(--ink3); }
+    .pill.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+    .pill.pos-pill.active { background: var(--pos); border-color: var(--pos); color: #fff; }
+    .pill.neg-pill.active { background: var(--neg); border-color: var(--neg); color: #fff; }
+    .pill.neu-pill.active { background: var(--neu); border-color: var(--neu); color: #fff; }
+
+    /* ── ARTICLE LIST ── */
+    .articles-list {
+      display: flex;
+      flex-direction: column;
+    }
+    .article-row {
+      display: grid;
+      grid-template-columns: 4px 1fr auto;
+      gap: 0 1rem;
+      align-items: start;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--rule);
+      text-decoration: none;
+      color: inherit;
+      transition: background 0.1s;
+    }
+    .article-row:first-child { border-top: 1px solid var(--rule); }
+    .article-row:hover { background: var(--surface); margin: 0 -1rem; padding: 1rem; }
+
+    .a-bar {
+      grid-column: 1;
+      grid-row: 1 / 3;
+      align-self: stretch;
+      min-height: 44px;
+      border-radius: 2px;
+    }
+    .a-bar.pos { background: var(--pos); }
+    .a-bar.neg { background: var(--neg); }
+    .a-bar.neutral { background: var(--neu); }
+
+    .a-body { grid-column: 2; }
+    .a-meta {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--ink3);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.3rem;
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+    .a-source { color: var(--accent); font-weight: 500; }
+    .a-title {
+      font-family: 'Fraunces', serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      line-height: 1.3;
+      margin-bottom: 0.3rem;
+      color: var(--ink);
+    }
+    .a-reason {
+      font-size: 0.82rem;
+      color: var(--ink2);
+      line-height: 1.45;
+    }
+
+    .a-badge {
+      grid-column: 3;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.2rem 0.5rem;
+      border-radius: 2px;
+      white-space: nowrap;
+      align-self: start;
+    }
+    .a-badge.pos { background: var(--pos-bg); color: var(--pos); }
+    .a-badge.neg { background: var(--neg-bg); color: var(--neg); }
+    .a-badge.neutral { background: var(--neu-bg); color: var(--neu); }
+
+    .empty { text-align: center; padding: 4rem; color: var(--ink3); font-style: italic; font-family: 'Fraunces', serif; font-size: 1.1rem; }
+
+    /* ── LOADING / ERROR ── */
+    .loading { text-align: center; padding: 6rem 2rem; font-family: 'DM Mono', monospace; font-size: 0.8rem; color: var(--ink3); letter-spacing: 0.1em; }
+
+    footer {
+      border-top: 2px solid var(--ink);
+      padding: 1.5rem 2rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--ink3);
+      letter-spacing: 0.05em;
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    footer a { color: var(--ink3); text-decoration: underline; }
+
+    @media (max-width: 640px) {
+      .a-badge { display: none; }
+      .article-row { grid-template-columns: 4px 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <h1 class="site-name">ESB<em>þermómetrinn</em></h1>
+    <div class="masthead-meta">
+      <span class="kicker">Viðhorf í íslenskum fjölmiðlum</span>
+      <div id="last-updated">Hleður…</div>
+    </div>
+  </div>
+</header>
+
+<div id="loading" class="loading">Hleður gögn…</div>
+
+<div id="content" style="display:none">
+<div class="wrap">
+
+  <!-- HERO: TIMELINE + TODAY PANEL -->
+  <section class="hero">
+    <div class="section-label">Dagleg þróun skoðana — frá upphafi skráningar</div>
+    <div class="hero-grid">
+      <div class="chart-box">
+        <canvas id="timeline-chart" height="180"></canvas>
+      </div>
+      <div class="today-panel">
+        <div>
+          <div class="today-label">Nýjar greinar í dag</div>
+          <div class="today-count" id="today-count">0<small>greinar</small></div>
+        </div>
+        <div class="today-breakdown" id="today-breakdown"></div>
+        <div class="total-archive" id="total-archive"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOURCE BREAKDOWN -->
+  <section class="trend-section">
+    <div class="section-label">Skipting eftir fjölmiðlum</div>
+    <div class="source-bars" id="source-bars"></div>
+  </section>
+
+  <!-- ARTICLE LIST -->
+  <section>
+    <div class="section-label" style="display:flex;justify-content:space-between;align-items:center">
+      <span>Allar skráðar greinar</span>
+      <span id="article-count" style="font-size:0.65rem;color:var(--ink3)"></span>
+    </div>
+    <div class="filters">
+      <span class="filter-label">Sía:</span>
+      <button class="pill active" data-filter="all">Allt</button>
+      <button class="pill pos-pill" data-filter="positive">Jákvæðar</button>
+      <button class="pill neg-pill" data-filter="negative">Neikvæðar</button>
+      <button class="pill neu-pill" data-filter="neutral">Hlutlægar</button>
+      <span id="source-pills" style="display:contents"></span>
+    </div>
+    <div class="articles-list" id="articles-list"></div>
+  </section>
+
+</div>
+</div>
+
+<footer>
+  <span>Dagleg uppfærsla með GitHub Actions · Tilfinningagreining: Claude API</span>
+  <span><a href="https://github.com/" id="gh-link" target="_blank">GitHub</a></span>
+</footer>
+
+<script>
+const LABELS = { positive: 'Jákvæð', negative: 'Neikvæð', neutral: 'Hlutlæg' };
+let allArticles = [], activeFilter = 'all', activeSource = 'all';
+
+function fmtDate(iso) {
+  try {
+    return new Date(iso).toLocaleDateString('is-IS', {day:'numeric',month:'short',year:'numeric'});
+  } catch { return iso; }
+}
+function today() { return new Date().toISOString().slice(0,10); }
+
+// ── TIMELINE CHART ──────────────────────────────────────────────────────────
+
+let timelineChart;
+function buildTimeline(articles) {
+  // Group by first_seen date
+  const dateMap = {};
+  articles.forEach(a => {
+    const d = a.first_seen || a.published?.slice(0,10) || today();
+    if (!dateMap[d]) dateMap[d] = {pos:0,neg:0,neu:0};
+    if (a.sentiment === 'positive') dateMap[d].pos++;
+    else if (a.sentiment === 'negative') dateMap[d].neg++;
+    else dateMap[d].neu++;
+  });
+
+  const dates = Object.keys(dateMap).sort();
+  if (timelineChart) timelineChart.destroy();
+  const ctx = document.getElementById('timeline-chart').getContext('2d');
+  timelineChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: dates.map(d => {
+        const dt = new Date(d + 'T12:00:00Z');
+        return dt.toLocaleDateString('is-IS', {day:'numeric',month:'short'});
+      }),
+      datasets: [
+        { label:'Jákvæðar', data: dates.map(d=>dateMap[d].pos), backgroundColor:'#1a7a4a', borderRadius:2 },
+        { label:'Neikvæðar', data: dates.map(d=>dateMap[d].neg), backgroundColor:'#c02020', borderRadius:2 },
+        { label:'Hlutlægar', data: dates.map(d=>dateMap[d].neu), backgroundColor:'#5050a0', borderRadius:2 },
+      ]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        x: { stacked:true, ticks:{color:'#8c8070',font:{family:'DM Mono',size:10}}, grid:{color:'#d8d0c0'} },
+        y: { stacked:true, ticks:{color:'#8c8070',font:{family:'DM Mono',size:10},stepSize:1}, grid:{color:'#d8d0c0'} },
+      },
+      plugins: {
+        legend: { labels:{color:'#4a4438',font:{family:'DM Mono',size:11},padding:14,boxWidth:10,boxHeight:10} },
+        tooltip: { callbacks: { title: (items) => dates[items[0].dataIndex] } }
+      }
+    }
+  });
+}
+
+// ── TODAY PANEL ──────────────────────────────────────────────────────────────
+function buildTodayPanel(articles) {
+  const t = today();
+  const todayArts = articles.filter(a => (a.first_seen || a.published?.slice(0,10)) === t);
+  const pos = todayArts.filter(a=>a.sentiment==='positive').length;
+  const neg = todayArts.filter(a=>a.sentiment==='negative').length;
+  const neu = todayArts.filter(a=>a.sentiment==='neutral').length;
+
+  document.getElementById('today-count').innerHTML =
+    `${todayArts.length}<small>nýjar greinar</small>`;
+
+  document.getElementById('today-breakdown').innerHTML = `
+    <div class="today-row"><span><span class="today-dot pos"></span>Jákvæðar</span><span class="count">${pos}</span></div>
+    <div class="today-row"><span><span class="today-dot neg"></span>Neikvæðar</span><span class="count">${neg}</span></div>
+    <div class="today-row"><span><span class="today-dot neu"></span>Hlutlægar</span><span class="count">${neu}</span></div>
+  `;
+
+  document.getElementById('total-archive').innerHTML =
+    `<strong>${articles.length}</strong> greinar í gagnagrunni`;
+}
+
+// ── SOURCE BARS ──────────────────────────────────────────────────────────────
+function buildSourceBars(articles) {
+  const sources = [...new Set(articles.map(a=>a.source_label))];
+  document.getElementById('source-bars').innerHTML = sources.map(src => {
+    const arts = articles.filter(a=>a.source_label===src);
+    const total = arts.length || 1;
+    const pos = arts.filter(a=>a.sentiment==='positive').length;
+    const neg = arts.filter(a=>a.sentiment==='negative').length;
+    const neu = arts.filter(a=>a.sentiment==='neutral').length;
+    return `
+      <div class="source-bar-cell">
+        <div class="sb-name">${src} <span style="opacity:0.5">(${arts.length})</span></div>
+        <div class="sb-bar">
+          <div class="sb-seg pos" style="width:${pos/total*100}%"></div>
+          <div class="sb-seg neg" style="width:${neg/total*100}%"></div>
+          <div class="sb-seg neu" style="width:${neu/total*100}%"></div>
+        </div>
+        <div class="sb-counts">
+          <span class="p">▲${pos}</span>
+          <span class="n">▼${neg}</span>
+          <span class="u">◆${neu}</span>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ── ARTICLE RENDERING ─────────────────────────────────────────────────────────
+function renderArticles(articles) {
+  const list = document.getElementById('articles-list');
+  document.getElementById('article-count').textContent = `${articles.length} greinar`;
+  if (!articles.length) {
+    list.innerHTML = '<div class="empty">Engar greinar fundust með þessum síum.</div>';
+    return;
+  }
+  list.innerHTML = articles.map(a => {
+    const cls = a.sentiment==='positive' ? 'pos' : a.sentiment==='negative' ? 'neg' : 'neutral';
+    return `
+      <a class="article-row" href="${a.url}" target="_blank" rel="noopener">
+        <div class="a-bar ${cls}"></div>
+        <div class="a-body">
+          <div class="a-meta">
+            <span class="a-source">${a.source_label}</span>
+            <span>${fmtDate(a.published)}</span>
+          </div>
+          <div class="a-title">${a.title}</div>
+          ${a.sentiment_reason ? `<div class="a-reason">${a.sentiment_reason}</div>` : ''}
+        </div>
+        <span class="a-badge ${cls}">${LABELS[a.sentiment]||a.sentiment}</span>
+      </a>`;
+  }).join('');
+}
+
+// ── FILTERS ──────────────────────────────────────────────────────────────────
+function applyFilters() {
+  let f = allArticles;
+  if (activeFilter !== 'all') f = f.filter(a=>a.sentiment===activeFilter);
+  if (activeSource !== 'all') f = f.filter(a=>a.source_label===activeSource);
+  renderArticles(f);
+}
+
+function setupFilters(articles) {
+  document.querySelectorAll('[data-filter]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-filter]').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilter = btn.dataset.filter;
+      applyFilters();
+    });
+  });
+  const sources = [...new Set(articles.map(a=>a.source_label))];
+  const sp = document.getElementById('source-pills');
+  const allBtn = Object.assign(document.createElement('button'), {className:'pill active',textContent:'Allir'});
+  allBtn.dataset.source = 'all';
+  sp.appendChild(allBtn);
+  sources.forEach(src => {
+    const b = Object.assign(document.createElement('button'), {className:'pill',textContent:src});
+    b.dataset.source = src;
+    sp.appendChild(b);
+  });
+  sp.addEventListener('click', e => {
+    const b = e.target.closest('[data-source]');
+    if (!b) return;
+    sp.querySelectorAll('[data-source]').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    activeSource = b.dataset.source;
+    applyFilters();
+  });
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+(async () => {
+  try {
+    const r = await fetch('./data/feed.json?v='+Date.now());
+    if (!r.ok) throw new Error('feed.json not found');
+    const data = await r.json();
+    allArticles = data.articles || [];
+
+    if (data.updated) {
+      document.getElementById('last-updated').textContent =
+        'Síðast uppfært ' + fmtDate(data.updated);
+    }
+
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('content').style.display = '';
+
+    buildTimeline(allArticles);
+    buildTodayPanel(allArticles);
+    buildSourceBars(allArticles);
+    setupFilters(allArticles);
+    renderArticles(allArticles);
+  } catch(e) {
+    document.getElementById('loading').textContent = 'Gat ekki hlaðið gögnum.';
+    console.error(e);
+  }
+})();
+</script>
+</body>
+</html>
