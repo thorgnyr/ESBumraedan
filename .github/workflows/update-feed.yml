@@ -1,0 +1,42 @@
+name: Daily Sentiment Update
+
+on:
+  schedule:
+    # Runs at 07:00 UTC every day (= 07:00 Reykjavík time — Iceland is always UTC)
+    - cron: "0 7 * * *"
+  workflow_dispatch: # allow manual trigger from the Actions tab
+
+permissions:
+  contents: write  # needed to push the updated feed.json
+
+jobs:
+  update-feed:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # No external pip dependencies — script uses stdlib only
+      - name: Run sentiment fetcher
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python scripts/fetch_sentiment.py
+
+      - name: Commit updated feed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/feed.json
+          # Only commit if the file actually changed
+          if git diff --cached --quiet; then
+            echo "No changes to feed.json — nothing to commit."
+          else
+            git commit -m "chore: daily sentiment update $(date -u '+%Y-%m-%d')"
+            git push
+          fi
