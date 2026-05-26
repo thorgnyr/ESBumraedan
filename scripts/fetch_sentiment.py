@@ -45,7 +45,7 @@ SOURCES = [
     },
 ]
 
-MAX_ARTICLES_PER_SOURCE = 6
+MAX_ARTICLES_PER_SOURCE = 50
 LOOKBACK_HOURS = 336
 OUTPUT_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "feed.json")
 
