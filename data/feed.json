@@ -1,6 +1,58 @@
 {
-  "updated": "2026-05-26T17:58:40Z",
+  "updated": "2026-05-26T18:06:17Z",
   "articles": [
+    {
+      "id": "blog-f6e9ff36",
+      "source": "blog.is",
+      "source_label": "Blog.is",
+      "title": "Ísland íhugar aðild að ESB vegna aukinnar spennu á norðurslóðum segir Newsmax World",
+      "url": "https://biggilofts.blog.is/blog/biggilofts/entry/2325495/",
+      "published": "2026-05-26T17:57:58+00:00",
+      "first_seen": "2026-05-26",
+      "summary": "Ísland lendir stundum í erlendum fjölmiðlum og stundum ekki af hinu góðu. ESB-brölt Viðreisnar og Samfylkingar kemst í heimsmiðlana, ekki af hinu góðu. Hér kemur endursögn/þýdd grein Newsmax: &#34;Ísland færist nær hugsanlega sögulegri ákvörðun um hvort",
+      "sentiment": "negative",
+      "sentiment_score": -0.7,
+      "sentiment_reason": "Lýsir ESB-umræðunni sem 'brölt' og telur hana skaða ímynd Íslands erlendis."
+    },
+    {
+      "id": "blog-a5e7c210",
+      "source": "blog.is",
+      "source_label": "Blog.is",
+      "title": "Krafa um birtingu allra ESB leyniskjala og endurupptöku G og G mála.",
+      "url": "https://tankur.blog.is/blog/tankur/entry/2325494/",
+      "published": "2026-05-26T16:51:38+00:00",
+      "first_seen": "2026-05-26",
+      "summary": "Það hlýtur hverjum kosningabærum Íslendingi að vera ljóst, að áður en frekari spor verða tekin í átt að ESB umsókn með fyrirhugaðri fyrri þjóðaratkvæðisgreiðslu í lok ágústs, að ekki er ásættanlegt neitt dulið leynimakk ráðamanna, heldur skulu allar",
+      "sentiment": "negative",
+      "sentiment_score": -0.8,
+      "sentiment_reason": "Krefst birtingar leyniskjala og andmælir dulúð í ESB-málum með sterku orðalagi."
+    },
+    {
+      "id": "blog-1e532479",
+      "source": "blog.is",
+      "source_label": "Blog.is",
+      "title": "Innflytjendur taka yfir",
+      "url": "https://frjalstland.blog.is/blog/frjalstland/entry/2325491/",
+      "published": "2026-05-26T15:27:46+00:00",
+      "first_seen": "2026-05-26",
+      "summary": "Frönsk menning, sú merkilegasta í ESB að sögn, líkist nú meir og meir menningu þróunarlanda. Vaxandi hluti íbúanna eru innflytjendur. Í ESB eru um 64 milljón innflytjendur, mest þróunarlandabúar, ef þeir væru saman á einu landsvæði væru þeir ein af",
+      "sentiment": "negative",
+      "sentiment_score": -0.9,
+      "sentiment_reason": "Notar innflytjendavandamál í ESB sem rök gegn aðild með mjög neikvæðum tón."
+    },
+    {
+      "id": "blog-9b23bfa2",
+      "source": "blog.is",
+      "source_label": "Blog.is",
+      "title": "Villandi framsetning og skortur á skýrum upplýsingum",
+      "url": "https://heimssyn.blog.is/blog/heimssyn/entry/2325469/",
+      "published": "2026-05-26T12:48:44+00:00",
+      "first_seen": "2026-05-26",
+      "summary": "Í dag, þriðjudaginn 26. maí &amp;#8212; sléttum sautján árum og degi betur frá því að þingsályktunartillögu um umsókn Íslands um aðild að Evrópusambandinu var útbýtt á Alþingi vorið 2009 &amp;#8212; fer fram hluti af síðari umræðu um þingsályktun",
+      "sentiment": "negative",
+      "sentiment_score": -0.5,
+      "sentiment_reason": "Gagnrýnir 'villandi framsetningu' og skort á upplýsingum í ESB-umræðunni."
+    },
     {
       "id": "heimildin-e5f6a7b8",
       "source": "heimildin.is",
@@ -15,6 +67,19 @@
       "sentiment_reason": "Jákvæð sýn á ESB-aðild og þá möguleika sem hún opnar."
     },
     {
+      "id": "heimildin-b1da5506",
+      "source": "heimildin.is",
+      "source_label": "Heimildin",
+      "title": "Flóttinn frá krónunni heldur áfram: 257 fyrirtæki gera upp í erlendum gjaldmiðlum",
+      "url": "https://heimildin.is/grein/26588/flottinn-fra-kronunni-heldur-afram-257-fyrirtaeki-gera-upp-i-erlendum-gjaldmidlum/?utm_medium=rss",
+      "published": "2026-05-26T09:08:50+00:00",
+      "first_seen": "2026-05-26",
+      "summary": "Alls eru 257 f&eacute;l&ouml;g &aacute; &Iacute;slandi me&eth; heimild til &thorn;ess a&eth; f&aelig;ra b&oacute;khald og semja &aacute;rsreikninga &iacute; erlendri mynt samkv&aelig;mt sv&ouml;rum fr&aacute; r&iacute;kisskattstj&oacute;ra og hefur &thorn;eim fj&ouml;lga&eth; l&iacute;tillega &aacute; s&iacute;&eth;ustu tveimur &aacute;rum, e&eth;a um n&iacute;u fyrirt&aelig;ki. &Aacute; undanf&ouml;rnum t&iacute;u &aacute;rum hefur fyrirt&aelig;kjum fj&ouml;lga&eth; um 147 sem gera upp &iacute;",
+      "sentiment": "neutral",
+      "sentiment_score": 0.0,
+      "sentiment_reason": "Hlutlæg tilkynning um fyrirtæki sem gera upp í erlendum gjaldmiðlum án ESB-tengingar."
+    },
+    {
       "id": "mbl-a1b2c3d4",
       "source": "mbl.is",
       "source_label": "Morgunblaðið",
@@ -26,6 +91,19 @@
       "sentiment": "negative",
       "sentiment_score": -0.65,
       "sentiment_reason": "Höfundur gagnrýnir hugmyndina um ESB-aðild og leggur áherslu á hættu fyrir sjálfræði."
+    },
+    {
+      "id": "mbl-89addecf",
+      "source": "mbl.is",
+      "source_label": "Morgunblaðið",
+      "title": "Engin svör um orkumál",
+      "url": "https://www.mbl.is/mogginn/bladid/grein/1913442/",
+      "published": "2026-05-26T00:00:00+00:00",
+      "first_seen": "2026-05-26",
+      "summary": "Ráðherra svaraði engu um skilyrði gagnvart ESB í aðlögunarviðræðum",
+      "sentiment": "negative",
+      "sentiment_score": -0.6,
+      "sentiment_reason": "Gagnrýnir ráðherra fyrir að svara engu um mikilvæg skilyrði í ESB-viðræðum."
     },
     {
       "id": "blog-c9d0e1f2",
