@@ -91,17 +91,24 @@ def extract_rss_items(xml_text, source, cutoff):
 
     items = (root.findall(".//item") or
              root.findall(".//{http://www.w3.org/2005/Atom}entry"))
+    def find_el(item, tag, atom_tag):
+        el = item.find(tag)
+        if el is not None:
+            return el
+        return item.find(atom_tag)
+
+    now_utc = datetime.datetime.now(datetime.timezone.utc)
     results = []
     for item in items:
-        t = item.find("title") or item.find("{http://www.w3.org/2005/Atom}title")
+        t = find_el(item, "title", "{http://www.w3.org/2005/Atom}title")
         title = strip_html(t.text or "") if t is not None else ""
         if not title:
             continue
 
-        l = item.find("link") or item.find("{http://www.w3.org/2005/Atom}link")
+        l = find_el(item, "link", "{http://www.w3.org/2005/Atom}link")
         url = (l.text or l.get("href", "")).strip() if l is not None else ""
 
-        p = item.find("pubDate") or item.find("{http://www.w3.org/2005/Atom}published")
+        p = find_el(item, "pubDate", "{http://www.w3.org/2005/Atom}published")
         published = parse_date((p.text or "").strip()) if p is not None else None
 
         if published:
@@ -109,9 +116,9 @@ def extract_rss_items(xml_text, source, cutoff):
             if published < aware_cutoff:
                 continue
 
-        d = (item.find("description") or
-             item.find("{http://purl.org/rss/1.0/modules/content/}encoded") or
-             item.find("{http://www.w3.org/2005/Atom}summary"))
+        d = find_el(item, "description", "{http://www.w3.org/2005/Atom}summary")
+        if d is None:
+            d = item.find("{http://purl.org/rss/1.0/modules/content/}encoded")
         summary = strip_html(d.text or "")[:500] if d is not None else ""
 
         aid = f"{source['id']}-{hashlib.md5(url.encode()).hexdigest()[:8]}"
@@ -121,7 +128,7 @@ def extract_rss_items(xml_text, source, cutoff):
             "source_label": source["label"],
             "title": title,
             "url": url or source["page_url"],
-            "published": published.isoformat() if published else datetime.datetime.utcnow().isoformat() + "Z",
+            "published": published.isoformat() if published else now_utc.isoformat(),
             "first_seen": datetime.date.today().isoformat(),
             "summary": summary,
         })
@@ -300,7 +307,7 @@ def load_existing():
         return {"updated": "", "articles": []}
 
 def main():
-    cutoff = datetime.datetime.utcnow() - datetime.timedelta(hours=LOOKBACK_HOURS)
+    cutoff = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=LOOKBACK_HOURS)
     today = datetime.date.today().isoformat()
     print(f"🗓  {today} — fetching articles since {cutoff.strftime('%Y-%m-%d %H:%M')} UTC\n")
 
@@ -341,7 +348,7 @@ def main():
     all_articles.sort(key=lambda a: a.get("published", ""), reverse=True)
 
     output = {
-        "updated": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "updated": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "articles": all_articles,
     }
     os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
