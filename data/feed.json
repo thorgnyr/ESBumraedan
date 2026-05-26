@@ -1,0 +1,109 @@
+{
+  "updated": "2026-05-26T07:00:00Z",
+  "articles": [
+    {
+      "id": "mbl-a1b2c3d4",
+      "source": "mbl.is",
+      "source_label": "Morgunblaðið",
+      "title": "ESB-aðild: Tækifæri eða ógn við sjálfræði þjóðarinnar?",
+      "url": "https://www.mbl.is/vidskipti/pistlar/",
+      "published": "2026-05-26T08:30:00Z",
+      "first_seen": "2026-05-26",
+      "summary": "Pistill um hvata og galla mögulegs ESB-aðildarferils Íslands.",
+      "sentiment": "negative",
+      "sentiment_score": -0.65,
+      "sentiment_reason": "Höfundur gagnrýnir hugmyndina um ESB-aðild og leggur áherslu á hættu fyrir sjálfræði."
+    },
+    {
+      "id": "heimildin-e5f6a7b8",
+      "source": "heimildin.is",
+      "source_label": "Heimildin",
+      "title": "Ísland á krossgötum: Framtíðin er ESB",
+      "url": "https://heimildin.is/umraeda/",
+      "published": "2026-05-26T10:00:00Z",
+      "first_seen": "2026-05-26",
+      "summary": "Greining á því hvernig ESB-aðild gæti styrkt stöðu Íslands á alþjóðavettvangi.",
+      "sentiment": "positive",
+      "sentiment_score": 0.72,
+      "sentiment_reason": "Jákvæð sýn á ESB-aðild og þá möguleika sem hún opnar."
+    },
+    {
+      "id": "blog-c9d0e1f2",
+      "source": "blog.is",
+      "source_label": "Blog.is",
+      "title": "Við erum ekki tilbúin — og Brussel veit það",
+      "url": "https://www.blog.is/forsida/",
+      "published": "2026-05-25T14:00:00Z",
+      "first_seen": "2026-05-25",
+      "summary": "Borgarblaðsgrein um þann undirbúningsskort sem einkennir umræðuna um ESB-samningana.",
+      "sentiment": "negative",
+      "sentiment_score": -0.78,
+      "sentiment_reason": "Gagnrýni á þann undirbúning sem liggur að baki samningaviðræðunum."
+    },
+    {
+      "id": "mbl-g3h4i5j6",
+      "source": "mbl.is",
+      "source_label": "Morgunblaðið",
+      "title": "Ágústkosningarnar: Lýðræðisleg vegferð eða formleikur?",
+      "url": "https://www.mbl.is/vidskipti/pistlar/",
+      "published": "2026-05-25T09:00:00Z",
+      "first_seen": "2026-05-25",
+      "summary": "Pistill um þýðingu kosninganna í ágúst fyrir ESB-samningaviðræðurnar.",
+      "sentiment": "neutral",
+      "sentiment_score": -0.1,
+      "sentiment_reason": "Hlutlæg greining á hlutverki ágústkosninganna í ESB-ferli landsins."
+    },
+    {
+      "id": "heimildin-k7l8m9n0",
+      "source": "heimildin.is",
+      "source_label": "Heimildin",
+      "title": "Fiskveiðar, gjaldmiðill og fullveldi: Þrír hnútar sem þarf að leysa",
+      "url": "https://heimildin.is/umraeda/",
+      "published": "2026-05-24T11:30:00Z",
+      "first_seen": "2026-05-24",
+      "summary": "Ítarleg greining á þeim þremur helstu hindrunum sem standa í vegi ESB-aðildar.",
+      "sentiment": "neutral",
+      "sentiment_score": -0.2,
+      "sentiment_reason": "Gagnleg en gagnrýnin greining á vandamálum án skýrrar niðurstöðu."
+    },
+    {
+      "id": "blog-o1p2q3r4",
+      "source": "blog.is",
+      "source_label": "Blog.is",
+      "title": "Þegar Evrópa kallar — er rétt að svara?",
+      "url": "https://www.blog.is/forsida/",
+      "published": "2026-05-24T16:00:00Z",
+      "first_seen": "2026-05-24",
+      "summary": "Persónuleg skoðun á því hvort ESB-aðild samræmist íslenskum gildum.",
+      "sentiment": "positive",
+      "sentiment_score": 0.55,
+      "sentiment_reason": "Höfundur er nokkuð bjartsýnn á ESB-aðild þó með fyrirvörum."
+    },
+    {
+      "id": "mbl-s5t6u7v8",
+      "source": "mbl.is",
+      "source_label": "Morgunblaðið",
+      "title": "Samningamenn okkar eru ekki í stakk búnir",
+      "url": "https://www.mbl.is/vidskipti/pistlar/",
+      "published": "2026-05-23T08:00:00Z",
+      "first_seen": "2026-05-23",
+      "summary": "Gagnrýni á þann hóp sem mun annast samningaviðræður við ESB.",
+      "sentiment": "negative",
+      "sentiment_score": -0.82,
+      "sentiment_reason": "Harð gagnrýni á hæfni samningamanna og stjórnvalda."
+    },
+    {
+      "id": "heimildin-w9x0y1z2",
+      "source": "heimildin.is",
+      "source_label": "Heimildin",
+      "title": "Ungir Íslendingar vilja ESB — hverjir eru að hlusta?",
+      "url": "https://heimildin.is/umraeda/",
+      "published": "2026-05-23T13:00:00Z",
+      "first_seen": "2026-05-23",
+      "summary": "Um þá skoðun ungra Íslendinga að ESB-aðild sé rétta leiðin.",
+      "sentiment": "positive",
+      "sentiment_score": 0.68,
+      "sentiment_reason": "Jákvæð umfjöllun um viðhorf yngri kynslóðar til ESB."
+    }
+  ]
+}
