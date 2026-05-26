@@ -37,7 +37,7 @@ SOURCES = [
         "id": "visir",
         "label": "Vísir",
         "rss_candidates": [
-            "https://www.visir.is/rss/allt",
+            "https://www.visir.is/rss/skodanir",
         ],
         "page_url": "https://www.visir.is/f/skodanir",
     },
