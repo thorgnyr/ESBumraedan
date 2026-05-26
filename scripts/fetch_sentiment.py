@@ -88,6 +88,15 @@ def http_get(url, timeout=15):
 
 def strip_html(s):
     s = re.sub(r"<[^>]+>", " ", s or "")
+    entities = {
+        "&amp;": "&", "&lt;": "<", "&gt;": ">", "&quot;": '"',
+        "&apos;": "'", "&hellip;": "…", "&mdash;": "—", "&ndash;": "–",
+        "&bdquo;": "„", "&ldquo;": "\u201c", "&rdquo;": "\u201d",
+        "&laquo;": "«", "&raquo;": "»", "&nbsp;": " ",
+    }
+    for ent, char in entities.items():
+        s = s.replace(ent, char)
+    s = re.sub(r"&[a-zA-Z]{2,8};", " ", s)
     return re.sub(r"\s+", " ", s).strip()
 
 def extract_rss_items(xml_text, source, cutoff):
@@ -297,11 +306,8 @@ Svaraðu EINUNGIS með JSON fylki:
 """
     text = claude_api(prompt, max_tokens=1200)
     if not text:
-        for a in articles:
-            a.setdefault("sentiment", "neutral")
-            a.setdefault("sentiment_score", 0.0)
-            a.setdefault("sentiment_reason", "Greining mistókst.")
-        return articles
+        print(f"    ⚠ Sentiment API call failed — retrying one by one...")
+        return _analyze_one_by_one(articles)
 
     try:
         results = extract_json(text)
@@ -312,11 +318,40 @@ Svaraðu EINUNGIS með JSON fylki:
             a["sentiment_score"] = float(r.get("sentiment_score", 0.0))
             a["sentiment_reason"] = r.get("sentiment_reason", "")
     except Exception as e:
-        print(f"    ⚠ Sentiment parse failed: {e}")
-        for a in articles:
+        print(f"    ⚠ Sentiment parse failed: {e} — retrying one by one...")
+        return _analyze_one_by_one(articles)
+    return articles
+
+
+def _analyze_one_by_one(articles):
+    """Fallback: analyze each article individually when batch JSON parsing fails."""
+    for a in articles:
+        prompt = f"""Greindu tilfinningalegan tón þessa pistils um ESB-málið á Íslandi.
+
+Titill: {a['title']}
+Samantekt: {a['summary']}
+
+Svaraðu EINUNGIS með JSON hlut:
+{{"sentiment": "positive" | "negative" | "neutral", "sentiment_score": <-1.0 til 1.0>, "sentiment_reason": "<ein setning á íslensku>"}}
+"""
+        text = claude_api(prompt, max_tokens=200)
+        if not text:
             a.setdefault("sentiment", "neutral")
             a.setdefault("sentiment_score", 0.0)
             a.setdefault("sentiment_reason", "Greining mistókst.")
+            continue
+        try:
+            r = extract_json(text)
+            a["sentiment"] = r.get("sentiment", "neutral")
+            a["sentiment_score"] = float(r.get("sentiment_score", 0.0))
+            a["sentiment_reason"] = r.get("sentiment_reason", "")
+            print(f"      ✓ {a['title'][:50]}")
+        except Exception as e:
+            print(f"      ⚠ Failed for '{a['title'][:40]}': {e}")
+            a.setdefault("sentiment", "neutral")
+            a.setdefault("sentiment_score", 0.0)
+            a.setdefault("sentiment_reason", "Greining mistókst.")
+        time.sleep(1)
     return articles
 
 # ── MAIN ──────────────────────────────────────────────────────────────────────
