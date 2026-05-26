@@ -1,5 +1,5 @@
 {
-  "updated": "2026-05-26T18:06:17Z",
+  "updated": "2026-05-26T18:10:58Z",
   "articles": [
     {
       "id": "blog-f6e9ff36",
@@ -106,6 +106,19 @@
       "sentiment_reason": "Gagnrýnir ráðherra fyrir að svara engu um mikilvæg skilyrði í ESB-viðræðum."
     },
     {
+      "id": "mbl-72d0e507",
+      "source": "mbl.is",
+      "source_label": "Morgunblaðið",
+      "title": "Áróðurstölur úr samhengi slitnar",
+      "url": "https://www.mbl.is/mogginn/bladid/grein/1913453/",
+      "published": "2026-05-26T00:00:00+00:00",
+      "first_seen": "2026-05-26",
+      "summary": "Samfylkingin og Ríkisútvarpið, sem gjarnan leggjast á sömu árar, hafa nú ákveðið, enn eina ferðina, að gera atlögu að undirstöðuatvinnuvegi þjóðarinnar. Nú á að gera það tortryggilegt að eignamyndun hafi orðið í sjávarútvegi og að fyrirtæki eða fjárfestar í sjávarútvegi hafi fjárfest",
+      "sentiment": "negative",
+      "sentiment_score": -0.7,
+      "sentiment_reason": "Gagnrýnir Samfylkinguna harðlega fyrir að gera atlögu að sjávarútvegi, sem tengist oft ESB-andstöðu vegna fiskveiðimála."
+    },
+    {
       "id": "blog-c9d0e1f2",
       "source": "blog.is",
       "source_label": "Blog.is",
@@ -182,6 +195,19 @@
       "sentiment": "negative",
       "sentiment_score": -0.82,
       "sentiment_reason": "Harð gagnrýni á hæfni samningamanna og stjórnvalda."
+    },
+    {
+      "id": "mbl-83427c37",
+      "source": "mbl.is",
+      "source_label": "Morgunblaðið",
+      "title": "Kristrún ræður, þjóðin ekki",
+      "url": "https://www.mbl.is/mogginn/bladid/grein/1913345/",
+      "published": "2026-05-23T00:00:00+00:00",
+      "first_seen": "2026-05-26",
+      "summary": "Ríkisstjórnin teymir kjósendur í tilgangslausan skollaleik",
+      "sentiment": "negative",
+      "sentiment_score": -0.8,
+      "sentiment_reason": "Gagnrýnir ríkisstjórnina fyrir að teymja kjósendur og hunsa þjóðarafstöðu í ESB-málum."
     }
   ]
 }
