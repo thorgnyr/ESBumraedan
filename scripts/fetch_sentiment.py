@@ -40,6 +40,7 @@ SOURCES = [
             "https://www.visir.is/rss/allt",
         ],
         "page_url": "https://www.visir.is/f/skodanir",
+        "category_filter": "skoðun",  # only keep opinion pieces
     },
     {
         "id": "heimildin",
@@ -53,8 +54,8 @@ SOURCES = [
     },
 ]
 
-MAX_ARTICLES_PER_SOURCE = 15
-LOOKBACK_HOURS = 36
+MAX_ARTICLES_PER_SOURCE = 50
+LOOKBACK_HOURS = 336
 OUTPUT_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "feed.json")
 
 # ── RSS / HTML FETCHING ───────────────────────────────────────────────────────
@@ -128,6 +129,13 @@ def extract_rss_items(xml_text, source, cutoff):
         if d is None:
             d = item.find("{http://purl.org/rss/1.0/modules/content/}encoded")
         summary = strip_html(d.text or "")[:500] if d is not None else ""
+
+        # Category filter — if the source requires a specific category, skip non-matches
+        cat_filter = source.get("category_filter")
+        if cat_filter:
+            cats = [strip_html(c.text or "").lower() for c in item.findall("category")]
+            if not any(cat_filter.lower() in c for c in cats):
+                continue
 
         aid = f"{source['id']}-{hashlib.md5(url.encode()).hexdigest()[:8]}"
         results.append({
@@ -213,9 +221,13 @@ def filter_eu_relevant(articles):
 
 SAMHENGI: {EU_CONTEXT}
 
-Hér eru {len(articles)} greinar/pistlar. Þín verkefni: Greindu hvort hver grein snúist um
-þetta efni — beint eða óbeint. Greinar geta vísað til ESB-málsins í myndmáli, 
-samlíkingum eða í víðara samhengi án þess að nefna „ESB" beint.
+Hér eru {len(articles)} greinar/pistlar. Þín verkefni: Greindu hvort hver grein uppfylli
+BÁÐAR þessar kröfur:
+
+1. SKOÐUN/PISTILL: Greinin er skoðunargrein, pistill, leiðari eða greinagerð — ekki bein fréttamiðlun
+2. ESB-TENGSL: Greinin fjallar BEINT um ESB-aðild, ESB-samningaviðræður, þjóðaratkvæðið í ágúst,
+   eða íslenska stefnu gagnvart Evrópusambandinu. Óbein tengsl eða stök nefning á ESB
+   telst EKKI nóg — efni greinarinnar verður að snúast um þetta.
 
 {numbered}
 
