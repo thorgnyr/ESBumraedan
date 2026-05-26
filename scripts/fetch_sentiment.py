@@ -53,8 +53,8 @@ SOURCES = [
     },
 ]
 
-MAX_ARTICLES_PER_SOURCE = 60
-LOOKBACK_HOURS = 336
+MAX_ARTICLES_PER_SOURCE = 15
+LOOKBACK_HOURS = 36
 OUTPUT_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "feed.json")
 
 # ── RSS / HTML FETCHING ───────────────────────────────────────────────────────
