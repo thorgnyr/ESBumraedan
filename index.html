@@ -411,7 +411,7 @@
       <button class="pill active" data-filter="all">Allt</button>
       <button class="pill pos-pill" data-filter="positive">Jákvæðar</button>
       <button class="pill neg-pill" data-filter="negative">Neikvæðar</button>
-      <button class="pill neu-pill" data-filter="neutral">Hlutlægar</button>
+      <button class="pill neu-pill" data-filter="neutral">Hlutlausar</button>
       <span id="source-pills" style="display:contents"></span>
     </div>
     <div class="articles-list" id="articles-list"></div>
@@ -426,7 +426,7 @@
 </footer>
 
 <script>
-const LABELS = { positive: 'Jákvæð', negative: 'Neikvæð', neutral: 'Hlutlæg' };
+const LABELS = { positive: 'Jákvæð', negative: 'Neikvæð', neutral: 'Hlutlaus' };
 let allArticles = [], activeFilter = 'all', activeSource = 'all';
 
 function fmtDate(iso) {
@@ -463,7 +463,7 @@ function buildTimeline(articles) {
       datasets: [
         { label:'Jákvæðar', data: dates.map(d=>dateMap[d].pos), backgroundColor:'#1a7a4a', borderRadius:2 },
         { label:'Neikvæðar', data: dates.map(d=>dateMap[d].neg), backgroundColor:'#c02020', borderRadius:2 },
-        { label:'Hlutlægar', data: dates.map(d=>dateMap[d].neu), backgroundColor:'#5050a0', borderRadius:2 },
+        { label:'Hlutlausar', data: dates.map(d=>dateMap[d].neu), backgroundColor:'#5050a0', borderRadius:2 },
       ]
     },
     options: {
@@ -494,7 +494,7 @@ function buildTodayPanel(articles) {
   document.getElementById('today-breakdown').innerHTML = `
     <div class="today-row"><span><span class="today-dot pos"></span>Jákvæðar</span><span class="count">${pos}</span></div>
     <div class="today-row"><span><span class="today-dot neg"></span>Neikvæðar</span><span class="count">${neg}</span></div>
-    <div class="today-row"><span><span class="today-dot neu"></span>Hlutlægar</span><span class="count">${neu}</span></div>
+    <div class="today-row"><span><span class="today-dot neu"></span>Hlutlausar</span><span class="count">${neu}</span></div>
   `;
 
   document.getElementById('total-archive').innerHTML =
