@@ -40,7 +40,6 @@ SOURCES = [
             "https://www.visir.is/rss/allt",
         ],
         "page_url": "https://www.visir.is/f/skodanir",
-        "category_filter": "skoðun",  # only keep opinion pieces
     },
     {
         "id": "heimildin",
@@ -54,7 +53,7 @@ SOURCES = [
     },
 ]
 
-MAX_ARTICLES_PER_SOURCE = 50
+MAX_ARTICLES_PER_SOURCE = 60
 LOOKBACK_HOURS = 336
 OUTPUT_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "feed.json")
 
@@ -221,13 +220,16 @@ def filter_eu_relevant(articles):
 
 SAMHENGI: {EU_CONTEXT}
 
-Hér eru {len(articles)} greinar/pistlar. Þín verkefni: Greindu hvort hver grein uppfylli
-BÁÐAR þessar kröfur:
+Hér eru {len(articles)} greinar/pistlar. Greindu hvort hver grein uppfylli BÁÐAR þessar kröfur:
 
-1. SKOÐUN/PISTILL: Greinin er skoðunargrein, pistill, leiðari eða greinagerð — ekki bein fréttamiðlun
-2. ESB-TENGSL: Greinin fjallar BEINT um ESB-aðild, ESB-samningaviðræður, þjóðaratkvæðið í ágúst,
-   eða íslenska stefnu gagnvart Evrópusambandinu. Óbein tengsl eða stök nefning á ESB
-   telst EKKI nóg — efni greinarinnar verður að snúast um þetta.
+1. SKOÐUN/PISTILL: Greinin er skoðunargrein, pistill, leiðari, greinagerð eða
+   rökstudd greining — ekki hlutlæg fréttamiðlun án afstöðu.
+
+2. ESB-TENGSL: Efni greinarinnar snýst um eða tengist skýrt íslenskri afstöðu
+   til ESB — þ.m.t. aðild, þjóðaratkvæðið í ágúst, samningaviðræður, fullveldi,
+   fiskveiðar í ESB-samhengi, eða pólitískar afleiðingar ESB-ferils. Greinar sem
+   nefna ESB aðeins í setningu eða tveim án þess að gera það að meginefni
+   teljast EKKI viðeigandi.
 
 {numbered}
 
