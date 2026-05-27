@@ -97,6 +97,9 @@ def strip_html(s):
     for ent, char in entities.items():
         s = s.replace(ent, char)
     s = re.sub(r"&[a-zA-Z]{2,8};", " ", s)
+    # Decode numeric entities: &#123; (decimal) and &#xF0; (hex)
+    s = re.sub(r"&#x([0-9a-fA-F]+);", lambda m: chr(int(m.group(1), 16)), s)
+    s = re.sub(r"&#([0-9]+);", lambda m: chr(int(m.group(1))), s)
     return re.sub(r"\s+", " ", s).strip()
 
 def extract_rss_items(xml_text, source, cutoff):
@@ -172,6 +175,11 @@ def fetch_article_text(url, max_chars=3000):
     else:
         text = strip_html(body)
     text = re.sub(r"\s+", " ", text).strip()
+    # Reject navigation/boilerplate: real article text has long sentences
+    # If no single space-separated chunk is longer than 60 chars, it's a menu
+    chunks = [c.strip() for c in re.split(r"[.!?]", text) if len(c.strip()) > 60]
+    if len(chunks) < 2:
+        return None
     # Trim to max_chars at a word boundary
     if len(text) > max_chars:
         text = text[:max_chars].rsplit(" ", 1)[0] + "…"
