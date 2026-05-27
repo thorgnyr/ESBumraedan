@@ -300,9 +300,9 @@ Svaraðu EINUNGIS með JSON fylki:
   ...
 ]
 
-- "positive": jákvæður tónn gagnvart ESB-aðild / samningum
-- "negative": neikvæður tónn, gagnrýni, andstaða
-- "neutral": hlutlæg greining, blandaðar skoðanir
+- "positive": styður þjóðaratkvæðið og/eða samningaviðræður — vill að ferlið gangi áfram, hvort sem viðhorf til ESB-aðildar er jákvætt eða hlutlægt
+- "negative": er á móti þjóðaratkvæðinu eða samningaviðræðum, vill fresta eða stöðva ferlið
+- "neutral": hlutlæg greining, tekur ekki skýra afstöðu til þess hvort ferlið eigi að halda áfram
 """
     text = claude_api(prompt, max_tokens=1200)
     if not text:
