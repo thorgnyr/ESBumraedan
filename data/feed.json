@@ -1,5 +1,5 @@
 {
-  "updated": "2026-05-27T09:05:54Z",
+  "updated": "2026-05-27T09:34:54Z",
   "articles": [
     {
       "id": "blog-18aaa784",
@@ -106,6 +106,22 @@
       "sentiment_reason": "Lýsir þjóðaratkvæðagreiðslunni sem mikilvægri ákvörðun um framtíðarsýn þjóðarinnar með málefnalegum og jákvæðum tón."
     },
     {
+      "id": "mbl-f994159d",
+      "source": "mbl.is",
+      "source_label": "Morgunblaðið",
+      "title": "Blýþung gullhúðun",
+      "url": "https://www.mbl.is/mogginn/bladid/grein/1913492/",
+      "published": "2026-05-27T00:00:00+00:00",
+      "first_seen": "2026-05-27",
+      "summary": "Fleiri innskráningarkostir Innskráð(ur) sem: Hækkaðu í gleðinni Endalaus uppspretta skemmtunar Meira fyrir áskrifendur Íslensk fyrirtæki News in English Myndskeið og þættir Eitt af því sem hefur í gegnum tíðina nýst Íslandi sem forskot í samkeppni við önnur ríki er að hér hefur flest verið einfaldara en annars staðar. Ísland er fámennt land, boðleiðir eru stuttar og áhugi hefur almennt frekar verið á að leysa mál en að flækja þau. Í seinni tíð er ekki jafn augljóst og áður að Ísland njóti að þessu leyti forskots á aðra. Í sumum tilvikum er kerfið hér á landi hreinlega orðið enn þunglamalegra en í þeim löndum sem við berum okkur helst saman við og þykir flækjan þó næg þar og þyngslin ærin. Morgunblaðið hefur fjallað töluvert um svokallaða gullhúðun regluverks Evrópusambandsins, sem Jón Trausti Ólafsson, forstjóri bifreiðaumboðsins Öskju, kallar réttilega blýþunga gullhúðun í samtali við blaðið í gær. Margir hafa orðið til að kvarta undan þeirri tilhneigingu hér á landi að bæta í regluverkið sem innleitt er Ertu ekki með notendaaðgang? Fara í nýskráningu . Gleymt lykilorð?",
+      "sentiment": "negative",
+      "sentiment_score": -0.7,
+      "sentiment_reason": "Höfundur gagnrýnir harðlega að íslensk stjórnvöld séu að gera ESB-regluverk enn flóknara en það þarf að vera.",
+      "main_argument": "Ísland er að missa samkeppnisforskot sitt vegna þess að stjórnvöld eru að bæta óþarflega við ESB-regluverkið og gera kerfið þunglamalegra en nauðsynlegt er.",
+      "directed_at": "Íslenskum stjórnvöldum og þeim sem bera ábyrgð á innleiðingu ESB-reglna",
+      "conclusion": "Íslenska kerfið er að verða flóknara og þyngra en í öðrum löndum vegna óþarfrar gullhúðunar á ESB-regluverki."
+    },
+    {
       "id": "blog-ef6096f8",
       "source": "blog.is",
       "source_label": "Blog.is",
@@ -182,6 +198,22 @@
       "sentiment": "negative",
       "sentiment_score": -0.7,
       "sentiment_reason": "Gagnrýnir Kristrúnu fyrir að vilja beita neitunarvaldi og halda samningi frá þjóðinni."
+    },
+    {
+      "id": "heimildin-901c6d08",
+      "source": "heimildin.is",
+      "source_label": "Heimildin",
+      "title": "Vaxtahækkun er skattahækkun á rangan hóp",
+      "url": "https://heimildin.is/grein/26671/vaxtahaekkun-er-skattahaekkun-a-rangan-hop/?utm_medium=rss",
+      "published": "2026-05-26T09:20:22+00:00",
+      "first_seen": "2026-05-27",
+      "summary": "Styrkja Skrá inn Áskrift Forsíða Fréttir Rannsóknir Fólk Menning Umræða Þekking Lífið Þættir Fasteignir Hátekjulistinn Blöð Fréttabréf Áskrift Styrkja Gefa áskrift Vísbending Benda á frétt Um Heimildina Laus störf Auglýsingar Útlit viðmóts Ljóst Dökkt © 2026 Sameinaða útgáfufélagið ehf. Allur réttur áskilinn. Notkun á efni miðilsins er óheimil án samþykkis. Fréttir Rannsóknir Fólk Menning Umræða Þekking Lífið Aðsent Stefán Ólafsson Vaxtahækkun er skattahækkun á rangan hóp Þau skuldugri og tekju lægri eru ekki helstu or saka vald ar verð bólg unn ar, held ur frek ar hin tekju hærri og eigna meiri, sem hafa meira um leikis. Vaxtahækkun er ígildi skattahækkunar sem lendir eingöngu á þeim sem skulda. Þau sem skulda mest eru yngra fólk sem glímir við að stofna fjölskyldu og koma sér upp íbúðarhúsnæði, og sum með miklar námsskuldir að auki. Þau sem eiga minna sparifé og hafa lægri tekjur þurfa að skuldsetja sig meira vegna íbúðakaupa. Þetta eru afmarkaðir hópar í samfélaginu en ekki allir. Þau tekjuhærri og eignameiri finna minna eða ekkert fyrir þessum álögum á skuldara, bæði vegna minni skulda og hærri tekna. Þau skuldugri og tekjulægri eru ekki helstu orsakavaldar verðbólgunnar, heldur frekar hin tekjuhærri og eignameiri, sem hafa meira umleikis. Þessi skattahækkun á skuldara er þess vegna ekki að draga úr neyslu og fjárfestingum þeirra tekjuhærri og eignameiri að ráði, heldur bitnar fyrst og fremst á launafólki í verkalýðsstétt og millistétt. Með vaxtahækkun er verið að kreista rangan hóp. Seðlabankinn er enn að hækka vexti/skatta á þetta fólk í von um að vega gegn verðbólgunni. Hvers vegna er það helsta úrræðið þó árangurinn sé lítill? Til að svara því er gagnlegt að rifja upp forsendur peningastefnunnar. Forsenda seðlabanka er almennt sú að verðbólga sé vegna of mikillar eftirspurnar í hagkerfinu (of mikil neysla, of mikil fjárfesting). Það sé vegna þess að of mikið peningamagn sé í umferð (laun almennings séu of há, lánsfé sé of auðsótt og of ódýrt). Eftirspurnarþrýstingur er hins vegar bara ein af mörgum mögulegum orsökum verðbólgunnar. Aðrar orsakir kalla á önnur úrræði. 1 En bíðum með það. Samkvæmt peningamagnskenningu Miltons Friedman og annarra nýfrjálshyggjumanna er þá leiðin sú að draga úr peningamagni í umferð. Vaxtahækkun er aðferðin til þess sem hefur verið í tísku á undanförnum árum á Vesturlöndum, en hún bitnar „óvart“ mest á þeim sem minnst hafa aflögu. Þau sem alla jafna hafa mest peningamagn í umferð eru ríkari helmingur þjóðarinnar, fjármagnseigendur og fyrirtæki sem ganga vel. Ætla mætti að peningastefnan reyndi að hægja mest á umferð peningamagns þeirra. En það hefur ekki verið í tísku, sennilega vegna þess að ríkasta fólkið sem hefur mestu völdin og hagfræðingar þeirra vilja hlífa sjálfum sér. Markmið vaxtahækkana á sem sagt að vera að draga úr kaupgetu og fjárfestingargetu í hagkerfinu. Draga úr eftirspurnarþrýstingi á verðbólguna. Vaxtahækkanir reyna að ná fram sömu áhrifum og almenn skattahækkun myndi ná fram. Raunar væri…",
+      "sentiment": "negative",
+      "sentiment_score": -0.7,
+      "sentiment_reason": "Höfundur gagnrýnir harðlega núverandi vaxtastefnu og telur hana óréttláta gagnvart tekjulægri hópum.",
+      "main_argument": "Vaxtahækkanir virka sem skattahækkun sem bitnar mest á skuldsettum tekjulægri hópum fremur en tekjuhærri sem eru helstu orsakavaldar verðbólgunnar.",
+      "directed_at": "Seðlabankinn og stefnumótendur peningamála",
+      "conclusion": "Vaxtahækkanir kreista rangan hóp í samfélaginu og ná ekki að leysa verðbólguvandann á skilvirkan hátt."
     },
     {
       "id": "blog-ad8a1823",
@@ -429,6 +461,22 @@
       "sentiment": "negative",
       "sentiment_score": -0.4,
       "sentiment_reason": "Hafnar röksemdafærslu um nauðsyn ESB-aðildar fyrir umhverfissamstarf og vefengir þá hugmynd."
+    },
+    {
+      "id": "mbl-83427c37",
+      "source": "mbl.is",
+      "source_label": "Morgunblaðið",
+      "title": "Kristrún ræður, þjóðin ekki",
+      "url": "https://www.mbl.is/mogginn/bladid/grein/1913345/",
+      "published": "2026-05-23T00:00:00+00:00",
+      "first_seen": "2026-05-27",
+      "summary": "Fleiri innskráningarkostir Innskráð(ur) sem: Hækkaðu í gleðinni Endalaus uppspretta skemmtunar Meira fyrir áskrifendur Íslensk fyrirtæki News in English Myndskeið og þættir Alþingi fjallar nú um Evrópusambandsaðild, en þar hamra stjórnarliðar á því að leita eigi svara hjá þjóðinni, henni skuli falin þessi mikilvæga ákvörðun, ekki einu sinni heldur tvisvar; þjóðin hafi síðasta orðið. Svo fer Jóhann Páll Jóhannsson umhverfisráðherra í ræðustól Alþingis í gær og segir ekkert að óttast, því Kristrún Frostadóttir forsætisráðherra hafi sagt „að við munum ekki einu sinni leggja fram samning fyrir þjóðina ef okkur líst ekki á hann. Við erum ekki að fara í aðra þjóðaratkvæðagreiðslu með vonlausan samning við ESB sem stjórnarflokkarnir standa ekki með.“ Sama Kristrún og ekki gat sagt fyrir um hvað yrði um aðildarumsóknina ef þjóðin segði nei í sumar, en í vikunni vafðist Þorgerði Katrínu Gunnarsdóttur utanríkisráðherra raunar einnig tunga um tönn um það. Ertu ekki með notendaaðgang? Fara í nýskráningu . Gleymt lykilorð?",
+      "sentiment": "negative",
+      "sentiment_score": -0.7,
+      "sentiment_reason": "Höfundur gagnrýnir harðlega að stjórnvöld séu tvískinnuð í ESB-málinu og virði ekki lýðræðisleg ferli.",
+      "main_argument": "Þrátt fyrir að stjórnarliðar haldi því fram að þjóðin hafi síðasta orðið um ESB-aðild þá hefur forsætisráðherra í raun þegar ákveðið að hafna samningi ef henni líst ekki á hann.",
+      "directed_at": "Kristrún Frostadóttir forsætisráðherra og öðrum ríkisstjórnarmeðlimum",
+      "conclusion": "Í raun er það Kristrún sem ákveður um ESB-málið, ekki þjóðin eins og haldið er fram."
     },
     {
       "id": "heimildin-3012dbeb",
