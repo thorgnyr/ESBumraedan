@@ -158,6 +158,25 @@ def extract_rss_items(xml_text, source, cutoff):
         })
     return results[:MAX_ARTICLES_PER_SOURCE]
 
+def fetch_article_text(url, max_chars=3000):
+    """Fetch full article body text from a URL, stripping boilerplate."""
+    body, _ = http_get(url, timeout=15)
+    if not body:
+        return None
+    # Remove script/style blocks entirely
+    body = re.sub(r"<(script|style)[^>]*>.*?</(script|style)>", " ", body, flags=re.DOTALL | re.IGNORECASE)
+    # Extract text from paragraph tags preferentially
+    paragraphs = re.findall(r"<p[^>]*>(.*?)</p>", body, re.DOTALL | re.IGNORECASE)
+    if paragraphs:
+        text = " ".join(strip_html(p) for p in paragraphs)
+    else:
+        text = strip_html(body)
+    text = re.sub(r"\s+", " ", text).strip()
+    # Trim to max_chars at a word boundary
+    if len(text) > max_chars:
+        text = text[:max_chars].rsplit(" ", 1)[0] + "…"
+    return text if len(text) > 100 else None
+
 def fetch_source(source, cutoff):
     print(f"  📡 {source['label']}")
     for rss_url in source.get("rss_candidates", []):
@@ -165,7 +184,12 @@ def fetch_source(source, cutoff):
         body, _ = http_get(rss_url)
         if body and ("<item" in body or "<entry" in body):
             items = extract_rss_items(body, source, cutoff)
-            print(f"    ✓ {len(items)} articles")
+            print(f"    ✓ {len(items)} articles — fetching full text...")
+            for item in items:
+                full_text = fetch_article_text(item["url"])
+                if full_text:
+                    item["summary"] = full_text
+                time.sleep(0.5)
             return items
     print(f"    ✗ all RSS candidates failed")
     return []
@@ -285,24 +309,28 @@ def analyze_sentiment(articles):
         f"{i+1}. [{a['source_label']}] {a['title']}\n   {a['summary']}"
         for i, a in enumerate(articles)
     )
-    prompt = f"""Greindu tilfinningalegan tón hvers pistils/greinar um ESB-málið á Íslandi.
+    prompt = f"""Greindu eftirfarandi pistla/greinar um ESB-málið á Íslandi ítarlega.
 
 {numbered}
 
-Svaraðu EINUNGIS með JSON fylki:
+Svaraðu EINUNGIS með JSON fylki — engin önnur texti:
 [
   {{
     "index": 1,
     "sentiment": "positive" | "negative" | "neutral",
     "sentiment_score": <-1.0 til 1.0>,
-    "sentiment_reason": "<ein setning á íslensku>"
+    "sentiment_reason": "<ein setning: hvert er meginviðhorf höfundar?>",
+    "main_argument": "<ein setning: hvert er aðalrökstuðningur greinarinnar?>",
+    "directed_at": "<hverjum er greinin beint að, t.d. ríkisstjórnin, ESB, almenningur, stjórnarandstaðan>",
+    "conclusion": "<ein setning: hvaða niðurstöðu eða áskorun kemst höfundur að?>"
   }},
   ...
 ]
 
-- "positive": styður þjóðaratkvæðið og/eða samningaviðræður — vill að ferlið gangi áfram, hvort sem viðhorf til ESB-aðildar er jákvætt eða hlutlægt
-- "negative": er á móti þjóðaratkvæðinu eða samningaviðræðum, vill fresta eða stöðva ferlið
-- "neutral": hlutlæg greining, tekur ekki skýra afstöðu til þess hvort ferlið eigi að halda áfram
+- "positive": jákvæður tónn gagnvart ESB-aðild / samningum
+- "negative": neikvæður tónn, gagnrýni, andstaða
+- "neutral": hlutlæg greining, blandaðar skoðanir
+- Öll svör skulu vera á íslensku
 """
     text = claude_api(prompt, max_tokens=1200)
     if not text:
@@ -317,6 +345,9 @@ Svaraðu EINUNGIS með JSON fylki:
             a["sentiment"] = r.get("sentiment", "neutral")
             a["sentiment_score"] = float(r.get("sentiment_score", 0.0))
             a["sentiment_reason"] = r.get("sentiment_reason", "")
+            a["main_argument"] = r.get("main_argument", "")
+            a["directed_at"] = r.get("directed_at", "")
+            a["conclusion"] = r.get("conclusion", "")
     except Exception as e:
         print(f"    ⚠ Sentiment parse failed: {e} — retrying one by one...")
         return _analyze_one_by_one(articles)
@@ -326,31 +357,47 @@ Svaraðu EINUNGIS með JSON fylki:
 def _analyze_one_by_one(articles):
     """Fallback: analyze each article individually when batch JSON parsing fails."""
     for a in articles:
-        prompt = f"""Greindu tilfinningalegan tón þessa pistils um ESB-málið á Íslandi.
+        prompt = f"""Greindu þennan pistil um ESB-málið á Íslandi ítarlega.
 
 Titill: {a['title']}
-Samantekt: {a['summary']}
+Efni: {a['summary']}
 
 Svaraðu EINUNGIS með JSON hlut:
-{{"sentiment": "positive" | "negative" | "neutral", "sentiment_score": <-1.0 til 1.0>, "sentiment_reason": "<ein setning á íslensku>"}}
+{{
+  "sentiment": "positive" | "negative" | "neutral",
+  "sentiment_score": <-1.0 til 1.0>,
+  "sentiment_reason": "<ein setning: hvert er meginviðhorf höfundar?>",
+  "main_argument": "<ein setning: hvert er aðalrökstuðningur greinarinnar?>",
+  "directed_at": "<hverjum er greinin beint að>",
+  "conclusion": "<ein setning: hvaða niðurstöðu kemst höfundur að?>"
+}}
 """
-        text = claude_api(prompt, max_tokens=200)
+        text = claude_api(prompt, max_tokens=400)
         if not text:
             a.setdefault("sentiment", "neutral")
             a.setdefault("sentiment_score", 0.0)
             a.setdefault("sentiment_reason", "Greining mistókst.")
+            a.setdefault("main_argument", "")
+            a.setdefault("directed_at", "")
+            a.setdefault("conclusion", "")
             continue
         try:
             r = extract_json(text)
             a["sentiment"] = r.get("sentiment", "neutral")
             a["sentiment_score"] = float(r.get("sentiment_score", 0.0))
             a["sentiment_reason"] = r.get("sentiment_reason", "")
+            a["main_argument"] = r.get("main_argument", "")
+            a["directed_at"] = r.get("directed_at", "")
+            a["conclusion"] = r.get("conclusion", "")
             print(f"      ✓ {a['title'][:50]}")
         except Exception as e:
             print(f"      ⚠ Failed for '{a['title'][:40]}': {e}")
             a.setdefault("sentiment", "neutral")
             a.setdefault("sentiment_score", 0.0)
             a.setdefault("sentiment_reason", "Greining mistókst.")
+            a.setdefault("main_argument", "")
+            a.setdefault("directed_at", "")
+            a.setdefault("conclusion", "")
         time.sleep(1)
     return articles
 
