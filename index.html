@@ -315,6 +315,28 @@
       font-size: 0.82rem;
       color: var(--ink2);
       line-height: 1.45;
+      margin-bottom: 0.4rem;
+    }
+    .a-details {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      margin-top: 0.4rem;
+      padding-top: 0.4rem;
+      border-top: 1px solid var(--rule);
+    }
+    .a-detail {
+      font-size: 0.78rem;
+      color: var(--ink2);
+      line-height: 1.4;
+    }
+    .a-detail-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--ink3);
+      margin-right: 0.35rem;
     }
 
     .a-badge {
@@ -537,6 +559,11 @@ function renderArticles(articles) {
   }
   list.innerHTML = articles.map(a => {
     const cls = a.sentiment==='positive' ? 'pos' : a.sentiment==='negative' ? 'neg' : 'neutral';
+    const details = [
+      a.main_argument ? `<div class="a-detail"><span class="a-detail-label">Rökstuðningur</span> ${a.main_argument}</div>` : '',
+      a.directed_at   ? `<div class="a-detail"><span class="a-detail-label">Beint að</span> ${a.directed_at}</div>` : '',
+      a.conclusion    ? `<div class="a-detail"><span class="a-detail-label">Niðurstaða</span> ${a.conclusion}</div>` : '',
+    ].filter(Boolean).join('');
     return `
       <a class="article-row" href="${a.url}" target="_blank" rel="noopener">
         <div class="a-bar ${cls}"></div>
@@ -547,6 +574,7 @@ function renderArticles(articles) {
           </div>
           <div class="a-title">${a.title}</div>
           ${a.sentiment_reason ? `<div class="a-reason">${a.sentiment_reason}</div>` : ''}
+          ${details ? `<div class="a-details">${details}</div>` : ''}
         </div>
         <span class="a-badge ${cls}">${LABELS[a.sentiment]||a.sentiment}</span>
       </a>`;
