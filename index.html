@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ESB-þermómetrinn · Íslenski skoðunarþermómetrinn</title>
+  <title>ESB Umræðan</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,400&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
@@ -385,9 +385,9 @@
 
 <header class="masthead">
   <div class="masthead-inner">
-    <h1 class="site-name">ESB<em>þermómetrinn</em></h1>
+    <h1 class="site-name">ESB <em>Umræðan</em></h1>
     <div class="masthead-meta">
-      <span class="kicker">Viðhorf í íslenskum fjölmiðlum</span>
+      <span class="kicker">ESB-umræðan í íslenskum fjölmiðlum</span>
       <div id="last-updated">Hleður…</div>
     </div>
   </div>
@@ -432,8 +432,8 @@
       <span class="filter-label">Sía:</span>
       <button class="pill active" data-filter="all">Allt</button>
       <button class="pill pos-pill" data-filter="positive">Jákvæðar</button>
-      <button class="pill neg-pill" data-filter="negative">Neikvæðar</button>
       <button class="pill neu-pill" data-filter="neutral">Hlutlausar</button>
+      <button class="pill neg-pill" data-filter="negative">Neikvæðar</button>
       <span id="source-pills" style="display:contents"></span>
     </div>
     <div class="articles-list" id="articles-list"></div>
@@ -484,8 +484,8 @@ function buildTimeline(articles) {
       }),
       datasets: [
         { label:'Jákvæðar', data: dates.map(d=>dateMap[d].pos), backgroundColor:'#1a7a4a', borderRadius:2 },
-        { label:'Neikvæðar', data: dates.map(d=>dateMap[d].neg), backgroundColor:'#c02020', borderRadius:2 },
         { label:'Hlutlausar', data: dates.map(d=>dateMap[d].neu), backgroundColor:'#5050a0', borderRadius:2 },
+        { label:'Neikvæðar', data: dates.map(d=>dateMap[d].neg), backgroundColor:'#c02020', borderRadius:2 },
       ]
     },
     options: {
@@ -515,8 +515,8 @@ function buildTodayPanel(articles) {
 
   document.getElementById('today-breakdown').innerHTML = `
     <div class="today-row"><span><span class="today-dot pos"></span>Jákvæðar</span><span class="count">${pos}</span></div>
-    <div class="today-row"><span><span class="today-dot neg"></span>Neikvæðar</span><span class="count">${neg}</span></div>
     <div class="today-row"><span><span class="today-dot neu"></span>Hlutlausar</span><span class="count">${neu}</span></div>
+    <div class="today-row"><span><span class="today-dot neg"></span>Neikvæðar</span><span class="count">${neg}</span></div>
   `;
 
   document.getElementById('total-archive').innerHTML =
