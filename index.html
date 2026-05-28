@@ -403,7 +403,7 @@
     <div class="section-label">Um þetta verkfæri</div>
     <div style="background:var(--surface);border:1px solid var(--rule);border-radius:2px;padding:1.5rem 2rem;max-width:720px">
       <p style="font-family:'Fraunces',serif;font-size:1.05rem;line-height:1.7;color:var(--ink2)">
-        ESB umræðan er tól sem að fylgist með skoðanagreinum og bloggum, skilgreinir hvort um sé að ræða jákvæð skrif, hlutlaus eða neikvæð, og birtir hér dreifingu dag frá degi. Ætlunin er að varpa ljósi á hvernig umræðan í innsendum greinum í fjölmiðlunum er. Ætlunin er að bæta fréttaumfjöllunum við líka í aðskildri greiningu. - Umsjón og ábyrgð: Þórgnýr Thoroddsen. 
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
       </p>
     </div>
   </section>
@@ -432,11 +432,11 @@
     <div class="source-bars" id="source-bars"></div>
   </section>
 
-  <!-- ARTICLE LIST -->
+  <!-- OPINION ARTICLES -->
   <section>
     <div class="section-label" style="display:flex;justify-content:space-between;align-items:center">
-      <span>Allar skráðar greinar</span>
-      <span id="article-count" style="font-size:0.65rem;color:var(--ink3)"></span>
+      <span>Skoðanagreinar</span>
+      <span id="opinion-count" style="font-size:0.65rem;color:var(--ink3)"></span>
     </div>
     <div class="filters">
       <span class="filter-label">Sía:</span>
@@ -449,6 +449,25 @@
     <div class="articles-list" id="articles-list"></div>
   </section>
 
+  <!-- NEWS FRAMING -->
+  <section style="margin-top:3rem">
+    <div class="section-label" style="display:flex;justify-content:space-between;align-items:center">
+      <span>Framing í fréttum</span>
+      <span id="news-count" style="font-size:0.65rem;color:var(--ink3)"></span>
+    </div>
+    <div class="charts-row" style="margin-bottom:1.5rem">
+      <div class="chart-box">
+        <div class="chart-title">Stefna framsetningar</div>
+        <canvas id="framing-donut" height="200"></canvas>
+      </div>
+      <div class="chart-box">
+        <div class="chart-title">Framsetning eftir fjölmiðlum</div>
+        <canvas id="framing-bar" height="200"></canvas>
+      </div>
+    </div>
+    <div class="articles-list" id="news-list"></div>
+  </section>
+
 </div>
 </div>
 
@@ -459,6 +478,7 @@
 
 <script>
 const LABELS = { positive: 'Jákvæð', negative: 'Neikvæð', neutral: 'Hlutlaus' };
+const FRAMING_LABELS = { positive: 'Hlynnt', negative: 'Gagnrýnið', neutral: 'Hlutlægt' };
 let allArticles = [], activeFilter = 'all', activeSource = 'all';
 
 function fmtDate(iso) {
@@ -472,9 +492,9 @@ function today() { return new Date().toISOString().slice(0,10); }
 
 let timelineChart;
 function buildTimeline(articles) {
-  // Group by first_seen date
+  const opinion = articles.filter(a => a.type === 'opinion' || !a.type);
   const dateMap = {};
-  articles.forEach(a => {
+  opinion.forEach(a => {
     const d = a.first_seen || a.published?.slice(0,10) || today();
     if (!dateMap[d]) dateMap[d] = {pos:0,neg:0,neu:0};
     if (a.sentiment === 'positive') dateMap[d].pos++;
@@ -512,13 +532,67 @@ function buildTimeline(articles) {
   });
 }
 
+// ── FRAMING CHARTS ────────────────────────────────────────────────────────────
+let framingDonut, framingBar;
+function buildFramingCharts(articles) {
+  const news = articles.filter(a => a.type === 'news');
+  if (!news.length) return;
+
+  const counts = { positive: 0, negative: 0, neutral: 0 };
+  news.forEach(a => { counts[a.framing_direction || 'neutral']++; });
+
+  const sources = [...new Set(news.map(a => a.source_label))];
+  const sourceData = sources.map(src => {
+    const arts = news.filter(a => a.source_label === src);
+    return {
+      label: src,
+      pos: arts.filter(a => a.framing_direction === 'positive').length,
+      neg: arts.filter(a => a.framing_direction === 'negative').length,
+      neu: arts.filter(a => (a.framing_direction || 'neutral') === 'neutral').length,
+    };
+  });
+
+  if (framingDonut) framingDonut.destroy();
+  framingDonut = new Chart(document.getElementById('framing-donut').getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Hlynnt', 'Hlutlægt', 'Gagnrýnið'],
+      datasets: [{ data: [counts.positive, counts.neutral, counts.negative], backgroundColor: ['#1a7a4a','#5050a0','#c02020'], borderWidth:0 }]
+    },
+    options: { responsive:true, cutout:'68%', plugins:{ legend:{ position:'bottom', labels:{color:'#4a4438',font:{family:'DM Mono',size:11},padding:16,boxWidth:10,boxHeight:10} } } }
+  });
+
+  if (framingBar) framingBar.destroy();
+  framingBar = new Chart(document.getElementById('framing-bar').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: sourceData.map(s => s.label),
+      datasets: [
+        { label:'Hlynnt',    data: sourceData.map(s=>s.pos), backgroundColor:'#1a7a4a', borderRadius:2 },
+        { label:'Hlutlægt',  data: sourceData.map(s=>s.neu), backgroundColor:'#5050a0', borderRadius:2 },
+        { label:'Gagnrýnið', data: sourceData.map(s=>s.neg), backgroundColor:'#c02020', borderRadius:2 },
+      ]
+    },
+    options: {
+      responsive:true,
+      scales: {
+        x: { stacked:true, ticks:{color:'#8c8070',font:{family:'DM Mono',size:10}}, grid:{color:'#d8d0c0'} },
+        y: { stacked:true, ticks:{color:'#8c8070',font:{family:'DM Mono',size:10},stepSize:1}, grid:{color:'#d8d0c0'} }
+      },
+      plugins: { legend:{ labels:{color:'#4a4438',font:{family:'DM Mono',size:11},padding:12,boxWidth:10,boxHeight:10} } }
+    }
+  });
+}
+
 // ── TODAY PANEL ──────────────────────────────────────────────────────────────
 function buildTodayPanel(articles) {
   const t = today();
   const todayArts = articles.filter(a => (a.first_seen || a.published?.slice(0,10)) === t);
-  const pos = todayArts.filter(a=>a.sentiment==='positive').length;
-  const neg = todayArts.filter(a=>a.sentiment==='negative').length;
-  const neu = todayArts.filter(a=>a.sentiment==='neutral').length;
+  const opinion = todayArts.filter(a => a.type === 'opinion' || !a.type);
+  const news    = todayArts.filter(a => a.type === 'news');
+  const pos = opinion.filter(a=>a.sentiment==='positive').length;
+  const neg = opinion.filter(a=>a.sentiment==='negative').length;
+  const neu = opinion.filter(a=>a.sentiment==='neutral').length;
 
   document.getElementById('today-count').innerHTML =
     `${todayArts.length}<small>nýjar greinar</small>`;
@@ -527,17 +601,19 @@ function buildTodayPanel(articles) {
     <div class="today-row"><span><span class="today-dot pos"></span>Jákvæðar</span><span class="count">${pos}</span></div>
     <div class="today-row"><span><span class="today-dot neu"></span>Hlutlausar</span><span class="count">${neu}</span></div>
     <div class="today-row"><span><span class="today-dot neg"></span>Neikvæðar</span><span class="count">${neg}</span></div>
+    ${news.length ? `<div class="today-row" style="margin-top:0.5rem;border-top:1px solid rgba(255,255,255,0.1);padding-top:0.5rem"><span style="opacity:0.6">Fréttir</span><span class="count">${news.length}</span></div>` : ''}
   `;
 
   document.getElementById('total-archive').innerHTML =
-    `<strong>${articles.length}</strong> greinar í gagnagrunni`;
+    `<strong>${articles.filter(a=>a.type==='opinion'||!a.type).length}</strong> skoðanagreinar · <strong>${articles.filter(a=>a.type==='news').length}</strong> fréttir`;
 }
 
 // ── SOURCE BARS ──────────────────────────────────────────────────────────────
 function buildSourceBars(articles) {
-  const sources = [...new Set(articles.map(a=>a.source_label))];
+  const opinion = articles.filter(a => a.type === 'opinion' || !a.type);
+  const sources = [...new Set(opinion.map(a=>a.source_label))];
   document.getElementById('source-bars').innerHTML = sources.map(src => {
-    const arts = articles.filter(a=>a.source_label===src);
+    const arts = opinion.filter(a=>a.source_label===src);
     const total = arts.length || 1;
     const pos = arts.filter(a=>a.sentiment==='positive').length;
     const neg = arts.filter(a=>a.sentiment==='negative').length;
@@ -547,26 +623,23 @@ function buildSourceBars(articles) {
         <div class="sb-name">${src} <span style="opacity:0.5">(${arts.length})</span></div>
         <div class="sb-bar">
           <div class="sb-seg pos" style="width:${pos/total*100}%"></div>
-          <div class="sb-seg neg" style="width:${neg/total*100}%"></div>
           <div class="sb-seg neu" style="width:${neu/total*100}%"></div>
+          <div class="sb-seg neg" style="width:${neg/total*100}%"></div>
         </div>
         <div class="sb-counts">
           <span class="p">▲${pos}</span>
-          <span class="n">▼${neg}</span>
           <span class="u">◆${neu}</span>
+          <span class="n">▼${neg}</span>
         </div>
       </div>`;
   }).join('');
 }
 
 // ── ARTICLE RENDERING ─────────────────────────────────────────────────────────
-function renderArticles(articles) {
+function renderOpinion(articles) {
   const list = document.getElementById('articles-list');
-  document.getElementById('article-count').textContent = `${articles.length} greinar`;
-  if (!articles.length) {
-    list.innerHTML = '<div class="empty">Engar greinar fundust með þessum síum.</div>';
-    return;
-  }
+  document.getElementById('opinion-count').textContent = `${articles.length} greinar`;
+  if (!articles.length) { list.innerHTML = '<div class="empty">Engar greinar fundust.</div>'; return; }
   list.innerHTML = articles.map(a => {
     const cls = a.sentiment==='positive' ? 'pos' : a.sentiment==='negative' ? 'neg' : 'neutral';
     const details = [
@@ -578,10 +651,7 @@ function renderArticles(articles) {
       <a class="article-row" href="${a.url}" target="_blank" rel="noopener">
         <div class="a-bar ${cls}"></div>
         <div class="a-body">
-          <div class="a-meta">
-            <span class="a-source">${a.source_label}</span>
-            <span>${fmtDate(a.published)}</span>
-          </div>
+          <div class="a-meta"><span class="a-source">${a.source_label}</span><span>${fmtDate(a.published)}</span></div>
           <div class="a-title">${a.title}</div>
           ${a.sentiment_reason ? `<div class="a-reason">${a.sentiment_reason}</div>` : ''}
           ${details ? `<div class="a-details">${details}</div>` : ''}
@@ -591,15 +661,42 @@ function renderArticles(articles) {
   }).join('');
 }
 
+function renderNews(articles) {
+  const list = document.getElementById('news-list');
+  document.getElementById('news-count').textContent = `${articles.length} fréttir`;
+  if (!articles.length) { list.innerHTML = '<div class="empty">Engar fréttir fundust.</div>'; return; }
+  list.innerHTML = articles.map(a => {
+    const dir = a.framing_direction || 'neutral';
+    const cls = dir==='positive' ? 'pos' : dir==='negative' ? 'neg' : 'neutral';
+    const details = [
+      a.framing_description ? `<div class="a-detail"><span class="a-detail-label">Framsetning</span> ${a.framing_description}</div>` : '',
+      a.voices_centered     ? `<div class="a-detail"><span class="a-detail-label">Raddir</span> ${a.voices_centered}</div>` : '',
+      a.conclusion          ? `<div class="a-detail"><span class="a-detail-label">Mynd lesanda</span> ${a.conclusion}</div>` : '',
+    ].filter(Boolean).join('');
+    return `
+      <a class="article-row" href="${a.url}" target="_blank" rel="noopener">
+        <div class="a-bar ${cls}"></div>
+        <div class="a-body">
+          <div class="a-meta"><span class="a-source">${a.source_label}</span><span>${fmtDate(a.published)}</span></div>
+          <div class="a-title">${a.title}</div>
+          ${a.framing ? `<div class="a-reason">${a.framing}</div>` : ''}
+          ${details ? `<div class="a-details">${details}</div>` : ''}
+        </div>
+        <span class="a-badge ${cls}">${FRAMING_LABELS[dir]||dir}</span>
+      </a>`;
+  }).join('');
+}
+
 // ── FILTERS ──────────────────────────────────────────────────────────────────
 function applyFilters() {
-  let f = allArticles;
+  let f = allArticles.filter(a => a.type === 'opinion' || !a.type);
   if (activeFilter !== 'all') f = f.filter(a=>a.sentiment===activeFilter);
   if (activeSource !== 'all') f = f.filter(a=>a.source_label===activeSource);
-  renderArticles(f);
+  renderOpinion(f);
 }
 
 function setupFilters(articles) {
+  const opinion = articles.filter(a => a.type === 'opinion' || !a.type);
   document.querySelectorAll('[data-filter]').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('[data-filter]').forEach(b=>b.classList.remove('active'));
@@ -608,7 +705,7 @@ function setupFilters(articles) {
       applyFilters();
     });
   });
-  const sources = [...new Set(articles.map(a=>a.source_label))];
+  const sources = [...new Set(opinion.map(a=>a.source_label))];
   const sp = document.getElementById('source-pills');
   const allBtn = Object.assign(document.createElement('button'), {className:'pill active',textContent:'Allir'});
   allBtn.dataset.source = 'all';
@@ -644,16 +741,22 @@ function setupFilters(articles) {
     document.getElementById('loading').style.display = 'none';
     document.getElementById('content').style.display = '';
 
+    const opinion = allArticles.filter(a => a.type === 'opinion' || !a.type);
+    const news    = allArticles.filter(a => a.type === 'news');
+
     buildTimeline(allArticles);
     buildTodayPanel(allArticles);
     buildSourceBars(allArticles);
+    buildFramingCharts(allArticles);
     setupFilters(allArticles);
-    renderArticles(allArticles);
+    renderOpinion(opinion);
+    renderNews(news);
   } catch(e) {
     document.getElementById('loading').textContent = 'Gat ekki hlaðið gögnum.';
     console.error(e);
   }
 })();
+
 </script>
   <script data-goatcounter="https://thorgnyr.goatcounter.com/count"
           async src="https://gc.zgo.at/count.js"></script>
