@@ -359,6 +359,52 @@
     /* ── LOADING / ERROR ── */
     .loading { text-align: center; padding: 6rem 2rem; font-family: 'DM Mono', monospace; font-size: 0.8rem; color: var(--ink3); letter-spacing: 0.1em; }
 
+    /* ── ACCORDION ── */
+    .accordion-section {
+      margin-bottom: 1rem;
+      border: 1px solid var(--rule);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .accordion-toggle {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 1.5rem;
+      background: var(--surface);
+      border: none;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.12s;
+    }
+    .accordion-toggle:hover { background: #f0ece4; }
+    .accordion-title {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ink2);
+      flex: 1;
+    }
+    .accordion-count {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--ink3);
+    }
+    .accordion-chevron {
+      font-size: 0.65rem;
+      color: var(--ink3);
+      transition: transform 0.2s;
+    }
+    .accordion-chevron.open { transform: rotate(180deg); }
+    .accordion-body {
+      display: none;
+      padding: 1.25rem 1.5rem 1.5rem;
+      border-top: 1px solid var(--rule);
+    }
+    .accordion-body.open { display: block; }
+
     footer {
       border-top: 2px solid var(--ink);
       padding: 1.5rem 2rem;
@@ -403,7 +449,7 @@
     <div class="section-label">Um þetta verkfæri</div>
     <div style="background:var(--surface);border:1px solid var(--rule);border-radius:2px;padding:1.5rem 2rem;max-width:720px">
       <p style="font-family:'Fraunces',serif;font-size:1.05rem;line-height:1.7;color:var(--ink2)">
-                ESB umræðan er tól sem að fylgist með skoðanagreinum og bloggum, skilgreinir hvort um sé að ræða jákvæð skrif, hlutlaus eða neikvæð, og birtir hér dreifingu dag frá degi. Einnig er fylgst með fréttum og gerð létt greining á því hvernig umræðuefnið er rammað inn fyrir lesendur, á jákvæðan, hlutlausan eða neikvæðan hátt. Ætlunin er að varpa ljósi á hvernig umræðan í innsendum greinum í fjölmiðlunum er. - Umsjón og ábyrgð: Þórgnýr Thoroddsen. 
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
       </p>
     </div>
   </section>
@@ -428,36 +474,16 @@
 
   <!-- SOURCE BREAKDOWN -->
   <section class="trend-section">
-    <div class="section-label">Skipting eftir fjölmiðlum</div>
+    <div class="section-label">Skipting eftir fjölmiðlum — skoðanagreinar</div>
     <div class="source-bars" id="source-bars"></div>
   </section>
 
-  <!-- OPINION ARTICLES -->
-  <section>
-    <div class="section-label" style="display:flex;justify-content:space-between;align-items:center">
-      <span>Skoðanagreinar</span>
-      <span id="opinion-count" style="font-size:0.65rem;color:var(--ink3)"></span>
-    </div>
-    <div class="filters">
-      <span class="filter-label">Sía:</span>
-      <button class="pill active" data-filter="all">Allt</button>
-      <button class="pill pos-pill" data-filter="positive">Jákvæðar</button>
-      <button class="pill neu-pill" data-filter="neutral">Hlutlausar</button>
-      <button class="pill neg-pill" data-filter="negative">Neikvæðar</button>
-      <span id="source-pills" style="display:contents"></span>
-    </div>
-    <div class="articles-list" id="articles-list"></div>
-  </section>
-
-  <!-- NEWS FRAMING -->
-  <section style="margin-top:3rem">
-    <div class="section-label" style="display:flex;justify-content:space-between;align-items:center">
-      <span>Framing í fréttum</span>
-      <span id="news-count" style="font-size:0.65rem;color:var(--ink3)"></span>
-    </div>
-    <div class="charts-row" style="margin-bottom:1.5rem">
+  <!-- FRAMING CHARTS -->
+  <section class="trend-section">
+    <div class="section-label">Stefna framsetningar — fréttir</div>
+    <div class="charts-row">
       <div class="chart-box">
-        <div class="chart-title">Stefna framsetningar</div>
+        <div class="chart-title">Hlutfall framsetningar</div>
         <canvas id="framing-donut" height="200"></canvas>
       </div>
       <div class="chart-box">
@@ -465,7 +491,38 @@
         <canvas id="framing-bar" height="200"></canvas>
       </div>
     </div>
-    <div class="articles-list" id="news-list"></div>
+  </section>
+
+  <!-- OPINION ARTICLES ACCORDION -->
+  <section class="accordion-section">
+    <button class="accordion-toggle" id="opinion-toggle" onclick="toggleAccordion('opinion')">
+      <span class="accordion-title">Skoðanagreinar</span>
+      <span id="opinion-count" class="accordion-count"></span>
+      <span class="accordion-chevron" id="opinion-chevron">▼</span>
+    </button>
+    <div class="accordion-body" id="opinion-body">
+      <div class="filters">
+        <span class="filter-label">Sía:</span>
+        <button class="pill active" data-filter="all">Allt</button>
+        <button class="pill pos-pill" data-filter="positive">Jákvæðar</button>
+        <button class="pill neu-pill" data-filter="neutral">Hlutlausar</button>
+        <button class="pill neg-pill" data-filter="negative">Neikvæðar</button>
+        <span id="source-pills" style="display:contents"></span>
+      </div>
+      <div class="articles-list" id="articles-list"></div>
+    </div>
+  </section>
+
+  <!-- NEWS FRAMING ACCORDION -->
+  <section class="accordion-section">
+    <button class="accordion-toggle" id="news-toggle" onclick="toggleAccordion('news')">
+      <span class="accordion-title">Fréttir — Framing greining</span>
+      <span id="news-count" class="accordion-count"></span>
+      <span class="accordion-chevron" id="news-chevron">▼</span>
+    </button>
+    <div class="accordion-body" id="news-body">
+      <div class="articles-list" id="news-list"></div>
+    </div>
   </section>
 
 </div>
@@ -487,6 +544,14 @@ function fmtDate(iso) {
   } catch { return iso; }
 }
 function today() { return new Date().toISOString().slice(0,10); }
+
+// ── ACCORDION ────────────────────────────────────────────────────────────────
+function toggleAccordion(id) {
+  const body = document.getElementById(id + '-body');
+  const chevron = document.getElementById(id + '-chevron');
+  body.classList.toggle('open');
+  chevron.classList.toggle('open');
+}
 
 // ── TIMELINE CHART ──────────────────────────────────────────────────────────
 
