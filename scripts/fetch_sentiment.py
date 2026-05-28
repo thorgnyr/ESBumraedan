@@ -14,46 +14,101 @@ from urllib.error import URLError
 
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 
-SOURCES = [
+# ── OPINION SOURCES ──────────────────────────────────────────────────────────
+OPINION_SOURCES = [
     {
-        # Morgunblaðið editorials — confirmed RSS from mbl.is/feeds/
         "id": "mbl",
         "label": "Morgunblaðið",
-        "rss_candidates": [
-            "https://www.mbl.is/feeds/mogginn/leidarar/",
-        ],
+        "type": "opinion",
+        "rss_candidates": ["https://www.mbl.is/feeds/mogginn/leidarar/"],
         "page_url": "https://www.mbl.is/vidskipti/pistlar/",
     },
     {
-        # blog.is — hosted and served by mbl.is, RSS confirmed
         "id": "blog",
         "label": "Blog.is",
-        "rss_candidates": [
-            "https://www.mbl.is/feeds/blog/",
-        ],
+        "type": "opinion",
+        "rss_candidates": ["https://www.mbl.is/feeds/blog/"],
         "page_url": "https://www.blog.is/forsida/",
     },
     {
-        "id": "visir",
-        "label": "Vísir",
-        "rss_candidates": [
-            "https://www.visir.is/rss/skodanir",
-        ],
+        "id": "visir_skodun",
+        "label": "Vísir — Skoðun",
+        "type": "opinion",
+        "rss_candidates": ["https://www.visir.is/rss/skodanir"],
         "page_url": "https://www.visir.is/f/skodanir",
     },
     {
         "id": "heimildin",
         "label": "Heimildin",
+        "type": "opinion",
         "rss_candidates": [
             "https://heimildin.is/feed/",
             "https://heimildin.is/rss/",
-            "https://heimildin.is/umraeda/feed/",
         ],
         "page_url": "https://heimildin.is/umraeda/",
     },
+    {
+        "id": "dv_eyjan",
+        "label": "DV — Eyjan",
+        "type": "opinion",
+        "rss_candidates": ["https://www.dv.is/eyjan/feed/"],
+        "page_url": "https://www.dv.is/eyjan/",
+    },
 ]
 
-MAX_ARTICLES_PER_SOURCE = 10
+# ── NEWS SOURCES ──────────────────────────────────────────────────────────────
+NEWS_SOURCES = [
+    {
+        "id": "mbl_innlent",
+        "label": "Morgunblaðið",
+        "type": "news",
+        "rss_candidates": ["https://www.mbl.is/feeds/innlent/"],
+        "page_url": "https://www.mbl.is/frettir/innlent/",
+    },
+    {
+        "id": "mbl_vidskipti",
+        "label": "Morgunblaðið — Viðskipti",
+        "type": "news",
+        "rss_candidates": ["https://www.mbl.is/feeds/vidskipti/"],
+        "page_url": "https://www.mbl.is/vidskipti/",
+    },
+    {
+        "id": "visir_news",
+        "label": "Vísir",
+        "type": "news",
+        "rss_candidates": ["https://www.visir.is/rss/allt"],
+        "page_url": "https://www.visir.is/f/frettir",
+    },
+    {
+        "id": "heimildin_news",
+        "label": "Heimildin",
+        "type": "news",
+        "rss_candidates": [
+            "https://heimildin.is/feed/",
+            "https://heimildin.is/rss/",
+        ],
+        "page_url": "https://heimildin.is/",
+    },
+    {
+        "id": "ruv",
+        "label": "RÚV",
+        "type": "news",
+        "rss_candidates": ["https://www.ruv.is/rss/frettir"],
+        "page_url": "https://www.ruv.is/frettir",
+    },
+    {
+        "id": "dv",
+        "label": "DV",
+        "type": "news",
+        "rss_candidates": ["https://www.dv.is/feed/"],
+        "exclude_url_pattern": "/eyjan/",  # Eyjan goes to opinion
+        "page_url": "https://www.dv.is/",
+    },
+]
+
+SOURCES = OPINION_SOURCES + NEWS_SOURCES
+
+MAX_ARTICLES_PER_SOURCE = 6
 LOOKBACK_HOURS = 36
 OUTPUT_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "feed.json")
 
@@ -147,6 +202,11 @@ def extract_rss_items(xml_text, source, cutoff):
             cats = [strip_html(c.text or "").lower() for c in item.findall("category")]
             if not any(cat_filter.lower() in c for c in cats):
                 continue
+
+        # URL pattern exclusion (e.g. exclude /eyjan/ from DV general feed)
+        exclude = source.get("exclude_url_pattern")
+        if exclude and exclude in url:
+            continue
 
         aid = f"{source['id']}-{hashlib.md5(url.encode()).hexdigest()[:8]}"
         results.append({
@@ -409,7 +469,111 @@ Svaraðu EINUNGIS með JSON hlut:
         time.sleep(1)
     return articles
 
-# ── MAIN ──────────────────────────────────────────────────────────────────────
+# ── FRAMING ANALYSIS ──────────────────────────────────────────────────────────
+
+def analyze_framing(articles):
+    """Analyze news articles for framing — what angle/picture is being constructed."""
+    if not articles:
+        return articles
+    if not ANTHROPIC_API_KEY:
+        for a in articles:
+            a.update({"framing": "", "framing_description": "", "voices_centered": "", "conclusion": "", "framing_direction": "neutral", "framing_score": 0.0})
+        return articles
+
+    numbered = "\n".join(
+        f"{i+1}. [{a['source_label']}] {a['title']}\n   {a['summary']}"
+        for i, a in enumerate(articles)
+    )
+
+    prompt = f"""Þú ert sérfræðingur í framsetningu og fjölmiðlagreiningu.
+
+SAMHENGI: Ísland er að undirbúa þjóðaratkvæðagreiðslu um ESB-aðild í ágúst 2026.
+
+Greindu hvernig hver fréttargrein FRAMSETIR þetta efni — ekki hvort hún er jákvæð eða neikvæð,
+heldur HVAÐA HORN og MYND höfundur er að byggja upp í huga lesandans.
+
+{numbered}
+
+Svaraðu EINUNGIS með JSON fylki — engin önnur texti:
+[
+  {{
+    "index": 1,
+    "framing": "<stutt merki, t.d. 'Lýðræðisleg hætta', 'Efnahagsleg tækifæri', 'Pólitískt leikfang', 'Hlutlæg upplýsingagjöf', 'Fullveldisógn', 'Söguleg þýðing'>",
+    "framing_description": "<ein setning: hvaða horn/sjónarhorn er greinin sett fram frá?>",
+    "voices_centered": "<hvers rödd/sjónarmiðar eru í fyrirrúmi í greininni?>",
+    "conclusion": "<ein setning: hvaða mynd er lesandinn skilinn eftir með?>",
+    "framing_direction": "positive" | "negative" | "neutral",
+    "framing_score": <-1.0 til 1.0 — hversu sterkt er framsetningin í þessa átt>
+  }},
+  ...
+]
+
+- "positive": framsetningin hlynnar þjóðaratkvæðinu / ESB-ferli
+- "negative": framsetningin gagnrýnir eða tortryggir þjóðaratkvæðið / ESB-ferli  
+- "neutral": hlutlæg framsetning án greinilegrar áhrifatilhneigingar
+- Öll svör skulu vera á íslensku nema framing_direction og framing_score
+"""
+
+    text = claude_api(prompt, max_tokens=1500)
+    if not text:
+        print(f"    ⚠ Framing API call failed — retrying one by one...")
+        return _frame_one_by_one(articles)
+
+    try:
+        results = extract_json(text)
+        rmap = {r["index"]: r for r in results}
+        for i, a in enumerate(articles):
+            r = rmap.get(i + 1, {})
+            a["framing"]             = r.get("framing", "")
+            a["framing_description"] = r.get("framing_description", "")
+            a["voices_centered"]     = r.get("voices_centered", "")
+            a["conclusion"]          = r.get("conclusion", "")
+            a["framing_direction"]   = r.get("framing_direction", "neutral")
+            a["framing_score"]       = float(r.get("framing_score", 0.0))
+    except Exception as e:
+        print(f"    ⚠ Framing parse failed: {e} — retrying one by one...")
+        return _frame_one_by_one(articles)
+    return articles
+
+
+def _frame_one_by_one(articles):
+    for a in articles:
+        prompt = f"""Greindu hvernig þessi fréttargrein um ESB/þjóðaratkvæðagreiðsluna framsetir efnið.
+
+Titill: {a['title']}
+Efni: {a['summary']}
+
+Svaraðu EINUNGIS með JSON hlut:
+{{
+  "framing": "<stutt merki fyrir framsetninguna>",
+  "framing_description": "<ein setning: hvaða horn er greinin sett fram frá?>",
+  "voices_centered": "<hvers rödd er í fyrirrúmi?>",
+  "conclusion": "<ein setning: hvaða mynd er lesandinn skilinn eftir með?>",
+  "framing_direction": "positive" | "negative" | "neutral",
+  "framing_score": <-1.0 til 1.0>
+}}
+"""
+        text = claude_api(prompt, max_tokens=400)
+        defaults = {"framing": "", "framing_description": "", "voices_centered": "", "conclusion": "", "framing_direction": "neutral", "framing_score": 0.0}
+        if not text:
+            for k, v in defaults.items():
+                a.setdefault(k, v)
+            continue
+        try:
+            r = extract_json(text)
+            a["framing"]             = r.get("framing", "")
+            a["framing_description"] = r.get("framing_description", "")
+            a["voices_centered"]     = r.get("voices_centered", "")
+            a["conclusion"]          = r.get("conclusion", "")
+            a["framing_direction"]   = r.get("framing_direction", "neutral")
+            a["framing_score"]       = float(r.get("framing_score", 0.0))
+            print(f"      ✓ {a['title'][:50]}")
+        except Exception as e:
+            print(f"      ⚠ Failed for '{a['title'][:40]}': {e}")
+            for k, v in defaults.items():
+                a.setdefault(k, v)
+        time.sleep(1)
+    return articles
 
 def load_existing():
     try:
@@ -425,38 +589,66 @@ def main():
 
     existing = load_existing()
     existing_urls = {a["url"] for a in existing.get("articles", [])}
-    existing_ids = {a["id"] for a in existing.get("articles", [])}
+    existing_ids  = {a["id"]  for a in existing.get("articles", [])}
 
-    fresh_candidates = []
+    opinion_candidates = []
+    news_candidates    = []
+
     for source in SOURCES:
         items = fetch_source(source, cutoff)
         new = [a for a in items if a["url"] not in existing_urls and a["id"] not in existing_ids]
         print(f"    {len(new)} new (of {len(items)} fetched)\n")
-        fresh_candidates.extend(new)
+        if source.get("type") == "news":
+            news_candidates.extend(new)
+        else:
+            opinion_candidates.extend(new)
         time.sleep(1)
 
-    print(f"🔍 Checking EU relevance for {len(fresh_candidates)} candidates...")
-    BATCH = 10
-    eu_relevant = []
-    for i in range(0, len(fresh_candidates), BATCH):
-        batch = fresh_candidates[i:i+BATCH]
-        eu_relevant.extend(filter_eu_relevant(batch))
-        if i + BATCH < len(fresh_candidates):
-            time.sleep(2)
-    # Clean up helper field
-    for a in eu_relevant:
-        a.pop("eu_relevant", None)
-
-    print(f"\n🧠 Sentiment analysis for {len(eu_relevant)} EU-relevant articles...")
     analyzed = []
-    for i in range(0, len(eu_relevant), 8):
-        batch = eu_relevant[i:i+8]
-        analyzed.extend(analyze_sentiment(batch))
-        if i + 8 < len(eu_relevant):
-            time.sleep(2)
+
+    # ── OPINION PIPELINE ──────────────────────────────────────────────────────
+    if opinion_candidates:
+        print(f"🔍 Checking EU relevance for {len(opinion_candidates)} opinion candidates...")
+        BATCH = 10
+        eu_opinion = []
+        for i in range(0, len(opinion_candidates), BATCH):
+            batch = opinion_candidates[i:i+BATCH]
+            eu_opinion.extend(filter_eu_relevant(batch))
+            if i + BATCH < len(opinion_candidates):
+                time.sleep(2)
+        for a in eu_opinion:
+            a.pop("eu_relevant", None)
+            a["type"] = "opinion"
+
+        print(f"\n🧠 Sentiment analysis for {len(eu_opinion)} EU-relevant opinion articles...")
+        for i in range(0, len(eu_opinion), 8):
+            batch = eu_opinion[i:i+8]
+            analyzed.extend(analyze_sentiment(batch))
+            if i + 8 < len(eu_opinion):
+                time.sleep(2)
+
+    # ── NEWS PIPELINE ─────────────────────────────────────────────────────────
+    if news_candidates:
+        print(f"\n🔍 Checking EU relevance for {len(news_candidates)} news candidates...")
+        BATCH = 10
+        eu_news = []
+        for i in range(0, len(news_candidates), BATCH):
+            batch = news_candidates[i:i+BATCH]
+            eu_news.extend(filter_eu_relevant(batch))
+            if i + BATCH < len(news_candidates):
+                time.sleep(2)
+        for a in eu_news:
+            a.pop("eu_relevant", None)
+            a["type"] = "news"
+
+        print(f"\n📰 Framing analysis for {len(eu_news)} EU-relevant news articles...")
+        for i in range(0, len(eu_news), 8):
+            batch = eu_news[i:i+8]
+            analyzed.extend(analyze_framing(batch))
+            if i + 8 < len(eu_news):
+                time.sleep(2)
 
     all_articles = existing.get("articles", []) + analyzed
-    # Sort by published descending
     all_articles.sort(key=lambda a: a.get("published", ""), reverse=True)
 
     output = {
@@ -467,7 +659,9 @@ def main():
     with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
         json.dump(output, f, ensure_ascii=False, indent=2)
 
-    print(f"\n✅ Archive now has {len(all_articles)} articles (+{len(analyzed)} new today)")
+    n_opinion = len([a for a in analyzed if a.get("type") == "opinion"])
+    n_news    = len([a for a in analyzed if a.get("type") == "news"])
+    print(f"\n✅ Archive: {len(all_articles)} total (+{n_opinion} opinion, +{n_news} news today)")
 
 if __name__ == "__main__":
     main()
