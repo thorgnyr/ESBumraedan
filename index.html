@@ -482,9 +482,9 @@
   <section class="trend-section">
     <div class="section-label">Stefna framsetningar — fréttir</div>
     <div class="charts-row">
-      <div class="chart-box">
+      <div class="chart-box" style="max-height:280px">
         <div class="chart-title">Hlutfall framsetningar</div>
-        <canvas id="framing-donut" height="200"></canvas>
+        <canvas id="framing-donut" style="max-height:220px"></canvas>
       </div>
       <div class="chart-box">
         <div class="chart-title">Framsetning eftir fjölmiðlum</div>
@@ -624,7 +624,7 @@ function buildFramingCharts(articles) {
       labels: ['Hlynnt', 'Hlutlægt', 'Gagnrýnið'],
       datasets: [{ data: [counts.positive, counts.neutral, counts.negative], backgroundColor: ['#1a7a4a','#5050a0','#c02020'], borderWidth:0 }]
     },
-    options: { responsive:true, cutout:'68%', plugins:{ legend:{ position:'bottom', labels:{color:'#4a4438',font:{family:'DM Mono',size:11},padding:16,boxWidth:10,boxHeight:10} } } }
+    options: { responsive:true, maintainAspectRatio: false, cutout:'68%', plugins:{ legend:{ position:'bottom', labels:{color:'#4a4438',font:{family:'DM Mono',size:11},padding:16,boxWidth:10,boxHeight:10} } } }
   });
 
   if (framingBar) framingBar.destroy();
