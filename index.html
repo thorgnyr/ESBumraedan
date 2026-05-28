@@ -458,8 +458,8 @@
   <section class="hero">
     <div class="section-label">Dagleg þróun skoðana — frá upphafi skráningar</div>
     <div class="hero-grid">
-      <div class="chart-box">
-        <canvas id="timeline-chart" height="180"></canvas>
+      <div class="chart-box" style="max-height:260px;overflow:hidden">
+        <canvas id="timeline-chart" style="max-height:220px"></canvas>
       </div>
       <div class="today-panel">
         <div>
@@ -481,14 +481,14 @@
   <!-- FRAMING CHARTS -->
   <section class="trend-section">
     <div class="section-label">Stefna framsetningar — fréttir</div>
-    <div class="charts-row">
-      <div class="chart-box" style="max-height:280px">
+    <div style="display:grid;grid-template-columns:1fr 2fr;gap:1.25rem">
+      <div class="chart-box" style="height:260px">
         <div class="chart-title">Hlutfall framsetningar</div>
-        <canvas id="framing-donut" style="max-height:220px"></canvas>
+        <canvas id="framing-donut" style="max-height:200px"></canvas>
       </div>
-      <div class="chart-box">
+      <div class="chart-box" style="height:260px">
         <div class="chart-title">Framsetning eftir fjölmiðlum</div>
-        <canvas id="framing-bar" height="200"></canvas>
+        <canvas id="framing-bar" style="max-height:200px"></canvas>
       </div>
     </div>
   </section>
@@ -585,6 +585,7 @@ function buildTimeline(articles) {
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
       scales: {
         x: { stacked:true, ticks:{color:'#8c8070',font:{family:'DM Mono',size:10}}, grid:{color:'#d8d0c0'} },
         y: { stacked:true, ticks:{color:'#8c8070',font:{family:'DM Mono',size:10},stepSize:1}, grid:{color:'#d8d0c0'} },
@@ -640,6 +641,7 @@ function buildFramingCharts(articles) {
     },
     options: {
       responsive:true,
+      maintainAspectRatio: false,
       scales: {
         x: { stacked:true, ticks:{color:'#8c8070',font:{family:'DM Mono',size:10}}, grid:{color:'#d8d0c0'} },
         y: { stacked:true, ticks:{color:'#8c8070',font:{family:'DM Mono',size:10},stepSize:1}, grid:{color:'#d8d0c0'} }
