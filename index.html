@@ -41,7 +41,7 @@
       background: var(--bg);
       position: sticky;
       top: 0;
-      z-index: 50;
+      z-index: 200;
     }
     .masthead-inner {
       max-width: 1100px;
@@ -458,8 +458,8 @@
   <section class="hero">
     <div class="section-label">Dagleg þróun skoðana — frá upphafi skráningar</div>
     <div class="hero-grid">
-      <div class="chart-box" style="max-height:260px;overflow:hidden">
-        <canvas id="timeline-chart" style="max-height:220px"></canvas>
+      <div class="chart-box" style="overflow:hidden;align-self:stretch;display:flex;flex-direction:column;justify-content:center">
+        <canvas id="timeline-chart" style="flex:1;min-height:0"></canvas>
       </div>
       <div class="today-panel">
         <div>
