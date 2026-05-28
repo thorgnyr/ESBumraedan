@@ -109,8 +109,8 @@ NEWS_SOURCES = [
 
 SOURCES = OPINION_SOURCES + NEWS_SOURCES
 
-MAX_ARTICLES_PER_SOURCE = 6
-LOOKBACK_HOURS = 36
+MAX_ARTICLES_PER_SOURCE = 60
+LOOKBACK_HOURS = 365
 OUTPUT_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "feed.json")
 
 # ── RSS / HTML FETCHING ───────────────────────────────────────────────────────
