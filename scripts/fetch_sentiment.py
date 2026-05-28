@@ -77,6 +77,7 @@ NEWS_SOURCES = [
         "label": "Vísir",
         "type": "news",
         "rss_candidates": ["https://www.visir.is/rss/allt"],
+        "exclude_rss_sources": ["https://www.visir.is/rss/skodanir"],
         "page_url": "https://www.visir.is/f/frettir",
     },
     {
@@ -108,8 +109,8 @@ NEWS_SOURCES = [
 
 SOURCES = OPINION_SOURCES + NEWS_SOURCES
 
-MAX_ARTICLES_PER_SOURCE = 60
-LOOKBACK_HOURS = 400
+MAX_ARTICLES_PER_SOURCE = 6
+LOOKBACK_HOURS = 36
 OUTPUT_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "feed.json")
 
 # ── RSS / HTML FETCHING ───────────────────────────────────────────────────────
@@ -292,8 +293,30 @@ def claude_api(prompt, max_tokens=2000):
         return None
 
 def extract_json(text):
-    m = re.search(r"(\[.*\]|\{.*\})", text, re.DOTALL)
-    return json.loads(m.group()) if m else None
+    """Find and parse the first complete JSON array or object, ignoring trailing text."""
+    for start_char, end_char in [('[', ']'), ('{', '}')]:
+        idx = text.find(start_char)
+        if idx == -1:
+            continue
+        depth, in_str, i = 0, False, idx
+        while i < len(text):
+            ch = text[i]
+            if in_str:
+                if ch == '\\':
+                    i += 1
+                elif ch == '"':
+                    in_str = False
+            else:
+                if ch == '"':
+                    in_str = True
+                elif ch == start_char:
+                    depth += 1
+                elif ch == end_char:
+                    depth -= 1
+                    if depth == 0:
+                        return json.loads(text[idx:i+1])
+            i += 1
+    return None
 
 # ── STEP 1: EU RELEVANCE FILTER ───────────────────────────────────────────────
 
@@ -317,29 +340,37 @@ def filter_eu_relevant(articles):
         f"{i+1}. {a['title']}\n   {a['summary']}"
         for i, a in enumerate(articles)
     )
-    prompt = f"""Þú ert greiningarsérfræðingur á íslenskum fjölmiðlum.
+    is_opinion = not any(a.get("type") == "news" for a in articles)
+    type_req = (
+        "1. FORM: Greinin er skoðunargrein, pistill, leiðari eða greinagerð með skýra afstöðu höfundar."
+        if is_opinion else
+        "1. FORM: Greinin er fréttamiðlun eða greiningargrein — ekki skoðunargrein."
+    )
+
+    prompt = f"""Þú ert greiningarsérfræðingur á íslenskum fjölmiðlum. Svaraðu AÐEINS með JSON — ekkert annað.
 
 SAMHENGI: {EU_CONTEXT}
 
-Hér eru {len(articles)} greinar/pistlar. Greindu hvort hver grein uppfylli BÁÐAR þessar kröfur:
+Greinar þurfa að uppfylla BÁÐAR kröfur:
 
-1. SKOÐUN/PISTILL: Greinin er skoðunargrein, pistill, leiðari, greinagerð eða
-   rökstudd greining — ekki hlutlæg fréttamiðlun án afstöðu.
+{type_req}
 
-2. ESB-TENGSL: Efni greinarinnar snýst um eða tengist skýrt íslenskri afstöðu
-   til ESB — þ.m.t. aðild, þjóðaratkvæðið í ágúst, samningaviðræður, fullveldi,
-   fiskveiðar í ESB-samhengi, eða pólitískar afleiðingar ESB-ferils. Greinar sem
-   nefna ESB aðeins í setningu eða tveim án þess að gera það að meginefni
-   teljast EKKI viðeigandi.
+2. EFNI: MEGINEFNI greinarinnar fjallar um þjóðaratkvæðið í ágúst, ESB-aðild Íslands,
+   eða bein pólitísk eða efnahagsleg áhrif ESB-ferils á Ísland.
+
+   EKKI viðeigandi (merktu relevant: false):
+   - Greinar þar sem ESB er aðeins nefnt í einni setningu í öðru samhengi
+   - Efnahagslegar greinar um vexti, húsnæði, laun — nema þær tengi þetta beint ESB
+   - Almennar stjórnmálagreinar sem fjalla ekki sérstaklega um þjóðaratkvæðið
+   - Fréttir af erlendum ESB-málum sem varða ekki Ísland
 
 {numbered}
 
-Svaraðu EINUNGIS með JSON fylki — engin önnur texti:
+JSON fylki — engin texti fyrir eða eftir:
 [
-  {{"index": 1, "relevant": true/false, "reason": "stuttur skýring á íslensku"}},
+  {{"index": 1, "relevant": true/false, "reason": "ein setning"}},
   ...
-]
-"""
+]"""
     text = claude_api(prompt, max_tokens=800)
     if not text:
         for a in articles:
@@ -593,15 +624,20 @@ def main():
 
     opinion_candidates = []
     news_candidates    = []
+    seen_this_run      = set()
 
     for source in SOURCES:
         items = fetch_source(source, cutoff)
-        new = [a for a in items if a["url"] not in existing_urls and a["id"] not in existing_ids]
+        new = [a for a in items
+               if a["url"] not in existing_urls
+               and a["id"] not in existing_ids
+               and a["url"] not in seen_this_run]
         print(f"    {len(new)} new (of {len(items)} fetched)\n")
         if source.get("type") == "news":
             news_candidates.extend(new)
         else:
             opinion_candidates.extend(new)
+        seen_this_run.update(a["url"] for a in new)
         time.sleep(1)
 
     analyzed = []
